@@ -39,7 +39,20 @@
               //console.log($(this).html());
               myarray.push($(this).text().trim().replace(/\s\s+/g, ' ').split(" "));
           });
-          console.log(myarray);
+          //console.log(myarray);
+        });
+      });
+    </script>
+    <script>
+      $(document).ready(function(){
+        $("tr").click(function(){
+          var toRevise = [];
+          $(".active").each(function() {
+              //console.log($(this).html());
+              toRevise = $(this).text().trim().replace(/\s\s+/g, ' ').split(" ");
+          });
+          document.getElementById("ModalDate").innerHTML = toRevise[16];
+          console.log(toRevise);
         });
       });
     </script>
@@ -50,6 +63,9 @@
         document.getElementById("FormatButton").innerHTML = item.innerHTML;
         if (item.innerHTML == "Limited"){
           document.getElementById("MatchTypeMenu").innerHTML = '<li><a class="dropdown-item" href="#" onclick="showMatchType(this)">Limited Match Types</a></li>';
+          if (document.getElementById("MatchTypeButton").innerHTML == "Constructed Match Types"){
+            document.getElementById("MatchTypeButton").innerHTML = "Match_Type";
+          }
           document.getElementById("P1ArchButton").disabled = true;
           document.getElementById("P2ArchButton").disabled = true;
           document.getElementById("P1ArchButton").innerHTML = "Limited";
@@ -57,6 +73,9 @@
           document.getElementById("LimitedFormatButton").disabled = false;
         } else if (item.innerHTML == "Constructed"){
           document.getElementById("MatchTypeMenu").innerHTML = '<li><a class="dropdown-item" href="#" onclick="showMatchType(this)">Constructed Match Types</a></li>';
+          if (document.getElementById("MatchTypeButton").innerHTML == "Limited Match Types"){
+            document.getElementById("MatchTypeButton").innerHTML = "Match_Type";
+          }
           document.getElementById("P1ArchButton").disabled = false;
           document.getElementById("P2ArchButton").disabled = false;
           document.getElementById("LimitedFormatButton").disabled = true;
