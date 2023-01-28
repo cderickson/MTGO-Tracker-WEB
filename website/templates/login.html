@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+
+  {% if error_message %}
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ error_message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+
+  {% if success_message %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ success_message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+
+  <form action="/login" method="POST">
+    <div class="mb-3">
+      <label for="reg_email" class="form-label">Email address</label>
+      <input type="email" class="form-control" id="login_email" aria-describedby="emailHelp" name="login_email" placeholder="Email">
+    </div>
+    <div class="mb-3">
+      <label for="reg_pwd" class="form-label">Password</label>
+      <input type="password" class="form-control" id="login_pwd" name="login_pwd" placeholder="Password">
+    </div>
+    <div class="mb-3 form-check">
+      <input type="checkbox" class="form-check-input" id="login_check" name="login_check">
+      <label class="form-check-label" for="login_check">Check</label>
+    </div>
+    <button type="submit" class="btn btn-secondary">Submit</button>
+  </form>
+
+</div>
+    
+{% endblock %}

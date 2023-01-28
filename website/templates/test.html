@@ -1,0 +1,331 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <style>
+    td {
+      font-size: 10pt;
+    }
+    th {
+      font-size: 10pt;
+    }
+    table tr.active {
+      background: #3c3c3c;
+      color: #f9f9f9;
+    }
+    table tr {
+      background: #f0f0f0;
+  </style>
+
+  <div class="container-fluid">
+
+    {% if success_message %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ success_message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    <h1><center>{{ table_name }} Table</center></h1>
+
+    <form action="/load" method="POST">
+      <button type="submit" class="btn btn-secondary">Load Data</button>
+    </form>
+    <form action="/load_drafts" method="POST">
+      <button type="submit" class="btn btn-secondary">Load Drafts</button>
+    </form>
+    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@getbootstrap">Revise Record</button>
+
+    <br>
+
+  </div>
+
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <table class="table table-sm w-auto table-bordered user-select-none">
+        <thead class="table-dark">
+          <tr>
+            {% if table_name == 'Matches' %}
+            <th scope="col" class="text-center">Match_ID</th>
+            <th scope="col" class="text-center">P1</th>
+            <th scope="col" class="text-center">P1_Arch</th>
+            <th scope="col" class="text-center">P1_Subarch</th>
+            <th scope="col" class="text-center">P2</th>
+            <th scope="col" class="text-center">P2_Arch</th>
+            <th scope="col" class="text-center">P2_Subarch</th>
+            <th scope="col" class="text-center">P1_Roll</th>
+            <th scope="col" class="text-center">P2_Roll</th>
+            <th scope="col" class="text-center">Roll_Winner</th>
+            <th scope="col" class="text-center">P1_Wins</th>
+            <th scope="col" class="text-center">P2_Wins</th>
+            <th scope="col" class="text-center">Match_Winner</th>
+            <th scope="col" class="text-center">Format</th>
+            <th scope="col" class="text-center">Limited_Format</th>
+            <th scope="col" class="text-center">Match_Type</th>
+            <th scope="col" class="text-center">Date</th>
+            {% endif %}
+            {% if table_name == 'Games' %}
+            <th scope="col" class="text-center">Match_ID</th>
+            <th scope="col" class="text-center">P1</th>
+            <th scope="col" class="text-center">P2</th>
+            <th scope="col" class="text-center">Game_Num</th>
+            <th scope="col" class="text-center">PD_Selector</th>
+            <th scope="col" class="text-center">PD_Choice</th>
+            <th scope="col" class="text-center">On_Play</th>
+            <th scope="col" class="text-center">On_Draw</th>
+            <th scope="col" class="text-center">P1_Mulls</th>
+            <th scope="col" class="text-center">P2_Mulls</th>
+            <th scope="col" class="text-center">Turns</th>
+            <th scope="col" class="text-center">Game_Winner</th>
+            {% endif %}
+            {% if table_name == 'Plays' %}
+            <th scope="col" class="text-center">Game_Num</th>
+            <th scope="col" class="text-center">Play_Num</th>
+            <th scope="col" class="text-center">Turn_Num</th>
+            <th scope="col" class="text-center">Casting_Player</th>
+            <th scope="col" class="text-center">Action</th>
+            <th scope="col" class="text-center">Primary_Card</th>
+            <th scope="col" class="text-center">Target1</th>
+            <th scope="col" class="text-center">Target2</th>
+            <th scope="col" class="text-center">Target3</th>
+            <th scope="col" class="text-center">Opp_Target</th>
+            <th scope="col" class="text-center">Self_Target</th>
+            <th scope="col" class="text-center">Cards_Drawn</th>
+            <th scope="col" class="text-center">Attackers</th>
+            <th scope="col" class="text-center">Active_Player</th>
+            <th scope="col" class="text-center">Non-Active_Player</th>
+            {% endif %}
+            {% if table_name == 'Drafts' %}
+            <th scope="col" class="text-center">Draft_ID</th>
+            <th scope="col" class="text-center">Hero</th>
+            <th scope="col" class="text-center">Player2</th>
+            <th scope="col" class="text-center">Player3</th>
+            <th scope="col" class="text-center">Player4</th>
+            <th scope="col" class="text-center">Player5</th>
+            <th scope="col" class="text-center">Player6</th>
+            <th scope="col" class="text-center">Player7</th>
+            <th scope="col" class="text-center">Player8</th>
+            <th scope="col" class="text-center">Match_Wins</th>
+            <th scope="col" class="text-center">Match_Losses</th>
+            <th scope="col" class="text-center">Format</th>
+            <th scope="col" class="text-center">Date</th>
+            {% endif %}
+            {% if table_name == 'Picks' %}
+            <th scope="col" class="text-center">Card</th>
+            <th scope="col" class="text-center">Pack_Num</th>
+            <th scope="col" class="text-center">Pick_Num</th>
+            <th scope="col" class="text-center">Pick_Ovr</th>
+            <th scope="col" class="text-center">Avail1</th>
+            <th scope="col" class="text-center">Avail2</th>
+            <th scope="col" class="text-center">Avail3</th>
+            <th scope="col" class="text-center">Avail4</th>
+            <th scope="col" class="text-center">Avail5</th>
+            <th scope="col" class="text-center">Avail6</th>
+            <th scope="col" class="text-center">Avail7</th>
+            <th scope="col" class="text-center">Avail8</th>
+            <th scope="col" class="text-center">Avail9</th>
+            <th scope="col" class="text-center">Avail10</th>
+            <th scope="col" class="text-center">Avail11</th>
+            <th scope="col" class="text-center">Avail12</th>
+            <th scope="col" class="text-center">Avail13</th>
+            <th scope="col" class="text-center">Avail14</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody style="cursor:pointer;" title="double click to get data">
+          {% for row in table %}
+          <tr class="jsTableRow">
+            {% if table_name == 'Matches' %}
+            <th scope="row">{{ row.match_id }}</th>
+            <td class="text-center">{{ row.p1 }}</td>
+            <td class="text-center">{{ row.p1_arch }}</td>
+            <td class="text-center">{{ row.p1_subarch }}</td>
+            <td class="text-center">{{ row.p2 }}</td>
+            <td class="text-center">{{ row.p2_arch }}</td>
+            <td class="text-center">{{ row.p2_subarch }}</td>
+            <td class="text-center">{{ row.p1_roll }}</td>
+            <td class="text-center">{{ row.p2_roll }}</td>
+            <td class="text-center">{{ row.roll_winner }}</td>
+            <td class="text-center">{{ row.p1_wins }}</td>
+            <td class="text-center">{{ row.p2_wins }}</td>
+            <td class="text-center">{{ row.match_winner }}</td>
+            <td class="text-center">{{ row.format }}</td>
+            <td class="text-center">{{ row.limited_format }}</td>
+            <td class="text-center">{{ row.match_type }}</td>
+            <td class="text-center"><nobr>{{ row.date }}</nobr></td>
+            {% endif %}
+            {% if table_name == 'Games' %}
+            <th scope="row">{{ row.match_id }}</th>
+            <td class="text-center">{{ row.p1 }}</td>
+            <td class="text-center">{{ row.p2 }}</td>
+            <td class="text-center">{{ row.game_num }}</td>
+            <td class="text-center">{{ row.pd_selector }}</td>
+            <td class="text-center">{{ row.pd_choice }}</td>
+            <td class="text-center">{{ row.on_play }}</td>
+            <td class="text-center">{{ row.on_draw }}</td>
+            <td class="text-center">{{ row.p1_mulls }}</td>
+            <td class="text-center">{{ row.p2_mulls }}</td>
+            <td class="text-center">{{ row.turns }}</td>
+            <td class="text-center">{{ row.game_winner }}</td>
+            {% endif %}
+            {% if table_name == 'Plays' %}
+            <td class="text-center">{{ row.game_num }}</td>
+            <td class="text-center">{{ row.play_num }}</td>
+            <td class="text-center">{{ row.turn_num }}</td>
+            <td class="text-center">{{ row.casting_player }}</td>
+            <td class="text-center">{{ row.action }}</td>
+            <td class="text-center">{{ row.primary_card }}</td>
+            <td class="text-center">{{ row.target1 }}</td>
+            <td class="text-center">{{ row.target2 }}</td>
+            <td class="text-center">{{ row.target3 }}</td>
+            <td class="text-center">{{ row.opp_target }}</td>
+            <td class="text-center">{{ row.self_target }}</td>
+            <td class="text-center">{{ row.cards_drawn }}</td>
+            <td class="text-center">{{ row.attackers }}</td>
+            <td class="text-center">{{ row.active_player }}</td>
+            <td class="text-center">{{ row.non_active_player }}</td>
+            {% endif %}
+            {% if table_name == 'Drafts' %}
+            <th scope="row">{{ row.draft_id }}</th>
+            <td class="text-center">{{ row.hero }}</td>
+            <td class="text-center">{{ row.player2 }}</td>
+            <td class="text-center">{{ row.player3 }}</td>
+            <td class="text-center">{{ row.player4 }}</td>
+            <td class="text-center">{{ row.player5 }}</td>
+            <td class="text-center">{{ row.player6 }}</td>
+            <td class="text-center">{{ row.player7 }}</td>
+            <td class="text-center">{{ row.player8 }}</td>
+            <td class="text-center">{{ row.match_wins }}</td>
+            <td class="text-center">{{ row.match_losses }}</td>
+            <td class="text-center">{{ row.format }}</td>
+            <td class="text-center">{{ row.date }}</td>
+            {% endif %}
+            {% if table_name == 'Picks' %}
+            <th scope="row">{{ row.card }}</th>
+            <td class="text-center">{{ row.pack_num }}</td>
+            <td class="text-center">{{ row.pick_num }}</td>
+            <td class="text-center">{{ row.pick_ovr }}</td>
+            <td class="text-center">{{ row.avail1 }}</td>
+            <td class="text-center">{{ row.avail2 }}</td>
+            <td class="text-center">{{ row.avail3 }}</td>
+            <td class="text-center">{{ row.avail4 }}</td>
+            <td class="text-center">{{ row.avail5 }}</td>
+            <td class="text-center">{{ row.avail6 }}</td>
+            <td class="text-center">{{ row.avail7 }}</td>
+            <td class="text-center">{{ row.avail8 }}</td>
+            <td class="text-center">{{ row.avail9 }}</td>
+            <td class="text-center">{{ row.avail10 }}</td>
+            <td class="text-center">{{ row.avail11 }}</td>
+            <td class="text-center">{{ row.avail12 }}</td>
+            <td class="text-center">{{ row.avail13 }}</td>
+            <td class="text-center">{{ row.avail14 }}</td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Revise Record</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <form>
+              <div class="row">
+                <p><center>Date</center></p>
+              </div>
+              <div class="row">
+                <div class="col"><p>P1</p></div>
+                <div class="col"><p>P2</p></div>
+              </div>
+              <div class="row">
+                <div class="col"><p><center>lands1</center></p></div>
+                <div class="col"><p><center>cards1</center></p></div>
+                <div class="col"><p><center>lands2</center></p></div>
+                <div class="col"><p><center>cards2</center></p></div>
+              </div>
+              <div class="row">
+                <div class="col"><p><center>
+                  <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="P1ArchButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      P1_Arch
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="P1ArchButton" id="P1ArchMenu">
+                      <li><a class="dropdown-item" href="#" onclick="showP1Arch(this)">Aggro</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="showP1Arch(this)">Midrange</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="showP1Arch(this)">Control</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="showP1Arch(this)">Combo</a></li>
+                    </ul>
+                  </div>
+                </center></p></div>
+                <div class="col"><p><center><input type="text" class="form-control" id="P1_Subarch" placeholder="P1_Subarch" value="P1_Subarch"></center></p></div>
+                <div class="col"><p><center>
+                  <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="P2ArchButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      P2_Arch
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="P2ArchButton" id="P2ArchMenu">
+                      <li><a class="dropdown-item" href="#" onclick="showP2Arch(this)">Aggro</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="showP2Arch(this)">Midrange</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="showP2Arch(this)">Control</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="showP2Arch(this)">Combo</a></li>
+                    </ul>
+                  </div>
+                </center></p></div>
+                <div class="col"><p><center><input type="text" class="form-control" id="P2_Subarch" placeholder="P2_Subarch" value="P1_Subarch"></center></p></div>
+              </div>
+              <div class="row">
+                <div class="col"><p><center>
+                  <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="FormatButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      Format
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="FormatButton" id="FormatMenu">
+                      <li><a class="dropdown-item" href="#" onclick="showFormat(this)">Constructed</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="showFormat(this)">Limited</a></li>
+                    </ul>
+                  </div>
+                </center></p></div>
+                <div class="col"><p><center>
+                  <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="LimitedFormatButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true" disabled>
+                      Limited_Format
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="LimitedFormatButton" id="LimitedFormatMenu">
+                      <li><a class="dropdown-item" href="#" onclick="showLimitedFormat(this)">Booster Draft</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="showLimitedFormat(this)">Sealed</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="showLimitedFormat(this)">Vintage Cube</a></li>
+                    </ul>
+                  </div>
+                </center></p></div>
+                <div class="col"><p><center>
+                  <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="MatchTypeButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      Match_Type
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="MatchTypeButton" id="MatchTypeMenu">
+                      <li><a class="dropdown-item" href="#" onclick="showMatchType(this)">League</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="showMatchType(this)">Challenge</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="showMatchType(this)">Premier</a></li>
+                    </ul>
+                  </div>
+                </center></p></div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Apply Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+    
+{% endblock %}
