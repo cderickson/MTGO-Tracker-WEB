@@ -227,105 +227,116 @@
     </div>
   </div>
 
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Revise Record</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="container-fluid">
-            <form>
-              <div class="row text-center">
-                <p id="ModalDate">Date</p>
-              </div>
-              <div class="row">
-                <div class="col"><p>P1</p></div>
-                <div class="col"><p>P2</p></div>
-              </div>
-              <div class="row text-center">
-                <div class="col">lands1</center></div>
-                <div class="col">cards1</center></div>
-                <div class="col">lands2</center></div>
-                <div class="col">cards2</center></div>
-              </div>
-              <div class="row">
-                <div class="col"><p><center>
-                  <div class="dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="P1ArchButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                      P1_Arch
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="P1ArchButton" id="P1ArchMenu">
-                      <li><a class="dropdown-item" href="#" onclick="showP1Arch(this)">Aggro</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="showP1Arch(this)">Midrange</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="showP1Arch(this)">Control</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="showP1Arch(this)">Combo</a></li>
-                    </ul>
-                  </div>
-                </center></p></div>
-                <div class="col"><p><center><input type="text" class="form-control" id="P1_Subarch" placeholder="P1_Subarch" value="P1_Subarch"></center></p></div>
-                <div class="col"><p><center>
-                  <div class="dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="P2ArchButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                      P2_Arch
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="P2ArchButton" id="P2ArchMenu">
-                      <li><a class="dropdown-item" href="#" onclick="showP2Arch(this)">Aggro</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="showP2Arch(this)">Midrange</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="showP2Arch(this)">Control</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="showP2Arch(this)">Combo</a></li>
-                    </ul>
-                  </div>
-                </center></p></div>
-                <div class="col"><p><center><input type="text" class="form-control" id="P2_Subarch" placeholder="P2_Subarch" value="P1_Subarch"></center></p></div>
-              </div>
-              <div class="row">
-                <div class="col"><p><center>
-                  <div class="dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="FormatButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                      Format
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="FormatButton" id="FormatMenu">
-                      <li><a class="dropdown-item" href="#" onclick="showFormat(this)">Constructed</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="showFormat(this)">Limited</a></li>
-                    </ul>
-                  </div>
-                </center></p></div>
-                <div class="col"><p><center>
-                  <div class="dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="LimitedFormatButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true" disabled>
-                      Limited_Format
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="LimitedFormatButton" id="LimitedFormatMenu">
-                      <li><a class="dropdown-item" href="#" onclick="showLimitedFormat(this)">Booster Draft</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="showLimitedFormat(this)">Sealed</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="showLimitedFormat(this)">Vintage Cube</a></li>
-                    </ul>
-                  </div>
-                </center></p></div>
-                <div class="col"><p><center>
-                  <div class="dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="MatchTypeButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                      Match_Type
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="MatchTypeButton" id="MatchTypeMenu">
-                      <li><a class="dropdown-item" href="#" onclick="showMatchType(this)">League</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="showMatchType(this)">Challenge</a></li>
-                      <li><a class="dropdown-item" href="#" onclick="showMatchType(this)">Premier</a></li>
-                    </ul>
-                  </div>
-                </center></p></div>
-              </div>
-            </form>
+  <form action="/revise" method="POST">
+    <input type="hidden" name="Match_ID"  id="Match_ID" value="NA">
+    <input type="hidden" name="P1Arch"  id="P1Arch" value="NA">
+    <input type="hidden" name="P2Arch"  id="P2Arch" value="NA">
+    <input type="hidden" name="Format"  id="Format" value="NA">
+    <input type="hidden" name="Limited_Format"  id="Limited_Format" value="NA">
+    <input type="hidden" name="Match_Type"  id="Match_Type" value="NA">
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Revise Record</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Apply Changes</button>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <form>
+                <div class="row text-center" id="ModalDate">
+                  Date
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col" id="ModalP1">P1</div>
+                  <div class="col" id="ModalP2">P2</div>
+                </div><br>
+                <div class="row">
+                  <div class="col text-center">lands1</div>
+                  <div class="col text-center">cards1</div>
+                  <div class="col text-center">lands2</div>
+                  <div class="col text-center">cards2</div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col text-center">
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="P1ArchButton" name="P1ArchButton" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        P1_Arch
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="P1ArchButton" id="P1ArchMenu">
+                        <li><a class="dropdown-item" onclick="showP1Arch(this)">Aggro</a></li>
+                        <li><a class="dropdown-item" onclick="showP1Arch(this)">Midrange</a></li>
+                        <li><a class="dropdown-item" onclick="showP1Arch(this)">Control</a></li>
+                        <li><a class="dropdown-item" onclick="showP1Arch(this)">Combo</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="col"><input type="text" class="form-control" id="P1_Subarch" name="P1_Subarch" placeholder="P1_Subarch" value="P1_Subarch"></div>
+                  <div class="col text-center">
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="P2ArchButton" name="P2ArchButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        P2_Arch
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="P2ArchButton" id="P2ArchMenu">
+                        <li><a class="dropdown-item" onclick="showP2Arch(this)">Aggro</a></li>
+                        <li><a class="dropdown-item" onclick="showP2Arch(this)">Midrange</a></li>
+                        <li><a class="dropdown-item" onclick="showP2Arch(this)">Control</a></li>
+                        <li><a class="dropdown-item" onclick="showP2Arch(this)">Combo</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="col"><input type="text" class="form-control" id="P2_Subarch" name="P2_Subarch" placeholder="P2_Subarch" value="P2_Subarch"></div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col text-center">
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="FormatButton" name="FormatButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        Format
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="FormatButton" id="FormatMenu">
+                        <li><a class="dropdown-item" onclick="showFormat(this)">Constructed</a></li>
+                        <li><a class="dropdown-item" onclick="showFormat(this)">Limited</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="col text-center">
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="LimitedFormatButton" name="LimitedFormatButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true" disabled>
+                        Limited_Format
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="LimitedFormatButton" id="LimitedFormatMenu">
+                        <li><a class="dropdown-item" onclick="showLimitedFormat(this)">Booster Draft</a></li>
+                        <li><a class="dropdown-item" onclick="showLimitedFormat(this)">Sealed</a></li>
+                        <li><a class="dropdown-item" onclick="showLimitedFormat(this)">Vintage Cube</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="col text-center">
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="MatchTypeButton" name="MatchTypeButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        Match_Type
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="MatchTypeButton" id="MatchTypeMenu">
+                        <li><a class="dropdown-item" onclick="showMatchType(this)">League</a></li>
+                        <li><a class="dropdown-item" onclick="showMatchType(this)">Challenge</a></li>
+                        <li><a class="dropdown-item" onclick="showMatchType(this)">Premier</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" onclick="changeHiddenInputs()">Apply Changes</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-    
+  </form>
+
 {% endblock %}
