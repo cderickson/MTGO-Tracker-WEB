@@ -298,7 +298,37 @@ def draft_drill(table_name, draft_id):
 
 @views.route('/revise', methods=['POST'])
 def revise():
+	match_id = request.form.get('Match_ID')
+	p1_arch = request.form.get('P1Arch')
+	p1_subarch = request.form.get('P1_Subarch')
+	p2_arch = request.form.get('P2Arch')
+	p2_subarch = request.form.get('P2_Subarch')
+	fmt = request.form.get('Format')
+	limited_format = request.form.get('Limited_Format')
+	match_type = request.form.get('Match_Type')
+
+	# if (not inputs[0]) or (not inputs[1]) or (not inputs[2]) or (not inputs[3]):
+	# 	error_message = 'Please fill in all fields.'
+	# 	return render_template('register.html', user=current_user, error_message=error_message, inputs=inputs)
+	# elif inputs[1] != inputs[2]:
+	# 	error_message = 'Passwords do not match.'
+	# 	return render_template('register.html', user=current_user, error_message=error_message, inputs=inputs)
+	# else:
+	# 	new_user = User(email=inputs[0], pwd=generate_password_hash(inputs[1], method='sha256'), username=inputs[3])
+	# 	db.session.add(new_user)
+	# 	db.session.commit()
+	# 	success_message = 'New user created.'
+	# 	login_user(new_user, remember=True)
+	# 	return render_template('index.html', user=current_user, success_message=success_message)
+
+	# return render_template('form.html', user=current_user, inputs=inputs)
 	return render_template('index.html', user=current_user, success_message="revise button clicked")
+
+@views.route('/values/<match_id>')
+def values(match_id):
+	match = Match.query.filter_by(match_id=match_id, user_id=current_user.id, p1=current_user.username).first()
+	print(match)
+	return match.as_dict()
 
 @views.route('/test2/<row>')
 def test2(row):
