@@ -33,6 +33,8 @@ class Match(db.Model):
 	limited_format = db.Column(db.String(15))
 	match_type = db.Column(db.String(30))
 	date = db.Column(db.String(20))
+	def as_dict(self):
+		return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class Game(db.Model):
 	#id = db.Column(db.Integer, primary_key=True)
