@@ -51,8 +51,20 @@
               //console.log($(this).html());
               toRevise = $(this).text().trim().replace(/\s\s+/g, ' ').split(" ");
           });
-          document.getElementById("ModalDate").innerHTML = toRevise[16];
-          console.log(toRevise);
+          if (toRevise.length > 0){
+            fetch('/values/'+toRevise[0]).then(function(response){
+              response.json().then(function(data){
+                document.getElementById("exampleModalLabel").innerHTML = 'Revise Record - ' + data.match_id;
+                document.getElementById("ModalDate").innerHTML = '<center><b>Date Played:</b> ' + data.date + '</center>';
+                document.getElementById("ModalP1").innerHTML = '<b>P1:</b> ' + data.p1;
+                document.getElementById("ModalP2").innerHTML = '<b>P2:</b> ' + data.p2;
+                document.getElementById('P1_Subarch').value = data.p1_subarch;
+                document.getElementById('P2_Subarch').value = data.p2_subarch;
+                console.log(data)
+              });
+            });
+          };
+          //console.log(toRevise);
         });
       });
     </script>
@@ -90,6 +102,19 @@
         console.log(item.innerHTML)}
       function showLimitedFormat(item) {document.getElementById("LimitedFormatButton").innerHTML = item.innerHTML;}
       function showMatchType(item) {document.getElementById("MatchTypeButton").innerHTML = item.innerHTML;}
+      function changeHiddenInputs() {
+        document.getElementById("Match_ID").value = document.getElementById("exampleModalLabel").innerHTML.trim().split(" - ")[1]
+        document.getElementById("P1Arch").value = document.getElementById("P1ArchButton").innerHTML.trim()
+        document.getElementById("P2Arch").value = document.getElementById("P2ArchButton").innerHTML.trim()
+        document.getElementById("Format").value = document.getElementById("FormatButton").innerHTML.trim()
+        document.getElementById("Limited_Format").value = document.getElementById("LimitedFormatButton").innerHTML.trim()
+        document.getElementById("Match_Type").value = document.getElementById("MatchTypeButton").innerHTML.trim()
+        console.log(document.getElementById("P1Arch").value)
+        console.log(document.getElementById("P2Arch").value)
+        console.log(document.getElementById("Format").value)
+        console.log(document.getElementById("Limited_Format").value)
+        console.log(document.getElementById("Match_Type").value)
+      }
     </script>
 
   </head>
