@@ -10,6 +10,9 @@ import io
 import time
 import modo
 import pickle
+import math 
+
+page_size = 25
 
 views = Blueprint('views', __name__)
 
@@ -68,7 +71,7 @@ def form():
 @views.route('/test', methods=['GET', 'POST'])
 def test():
 	table = Match.query.filter_by(user_id=current_user.id).order_by(Match.date).limit(25).all()
-	return render_template('test.html', user=current_user, table_name='Matches', table=table)
+	return render_template('test.html', user=current_user, table_name='matches', table=table)
 
 @views.route('/load_drafts', methods=['POST'])
 def load_drafts():
@@ -147,7 +150,7 @@ def load_drafts():
 			#PARSED_DRAFT_DICT[i] = parsed_data[2]
 
 	table = Draft.query.filter_by(user_id=current_user.id).order_by(Draft.date).limit(25).all()
-	return render_template('test.html', user=current_user, table_name='Drafts', table=table, success_message=f'Uploaded Drafts, Picks.')
+	return render_template('test.html', user=current_user, table_name='drafts', table=table, success_message=f'Uploaded Drafts, Picks.')
 
 @views.route('/load', methods=['POST'])
 def load():
@@ -261,40 +264,58 @@ def load():
 		new_data_inverted = modo.invert_join(new_data)
 	
 	table = Match.query.filter_by(user_id=current_user.id).order_by(Match.date).limit(25).all()
-	return render_template('test.html', user=current_user, table_name='Matches', table=table, success_message='Uploaded Data.')
+	return render_template('test.html', user=current_user, table_name='matches', table=table, success_message='Uploaded Data.')
 
-@views.route('/table/<table_name>')
-def table(table_name):
-	if table_name.capitalize() == 'Matches':
-		table = Match.query.filter_by(user_id=current_user.id, p1=current_user.username).order_by(Match.match_id).limit(25).all() 
-	elif table_name.capitalize() == 'Games':
-		table = Game.query.filter_by(user_id=current_user.id, p1=current_user.username).order_by(Game.match_id).limit(25).all() 
-	elif table_name.capitalize() == 'Plays':
-		table = Play.query.filter_by(user_id=current_user.id).order_by(Play.match_id).limit(25).all()
-	elif table_name.capitalize() == 'Drafts':
-		table = Draft.query.filter_by(user_id=current_user.id).order_by(Draft.draft_id).limit(25).all()  
-	elif table_name.capitalize() == 'Picks':
-		table = Pick.query.filter_by(user_id=current_user.id).order_by(Pick.draft_id).limit(25).all()  
+@views.route('/table/<table_name>/<page_num>')
+def table(table_name, page_num):
+	if table_name.lower() == 'matches':
+		pages = math.ceil(Match.query.filter_by(user_id=current_user.id).count()/page_size)
+		if (int(page_num) < 1) or (int(page_num) > pages):
+			page_num = 0
+		table = Match.query.filter_by(user_id=current_user.id).order_by(Match.match_id).limit(page_size*int(page_num)).all()
+		#table = Match.query.filter_by(user_id=current_user.id, p1=current_user.username).order_by(Match.match_id).limit(page_size*int(page_num)).all()
+	elif table_name.lower() == 'games':
+		pages = math.ceil(Game.query.filter_by(user_id=current_user.id).count()/page_size)
+		if (int(page_num) < 1) or (int(page_num) > pages):
+			page_num = 0
+		table = Game.query.filter_by(user_id=current_user.id, p1=current_user.username).order_by(Game.match_id).limit(page_size*int(page_num)).all()
+	elif table_name.lower() == 'plays':
+		pages = math.ceil(Play.query.filter_by(user_id=current_user.id).count()/page_size)
+		if (int(page_num) < 1) or (int(page_num) > pages):
+			page_num = 0
+		table = Play.query.filter_by(user_id=current_user.id).order_by(Play.match_id).limit(page_size*int(page_num)).all()
+	elif table_name.lower() == 'drafts':
+		pages = math.ceil(Draft.query.filter_by(user_id=current_user.id).count()/page_size)
+		if (int(page_num) < 1) or (int(page_num) > pages):
+			page_num = 0
+		table = Draft.query.filter_by(user_id=current_user.id).order_by(Draft.draft_id).limit(page_size*int(page_num)).all()
+	elif table_name.lower() == 'picks':
+		pages = math.ceil(Pick.query.filter_by(user_id=current_user.id).count()/page_size)
+		if (int(page_num) < 1) or (int(page_num) > pages):
+			page_num = 0
+		table = Pick.query.filter_by(user_id=current_user.id).order_by(Pick.draft_id).limit(page_size*int(page_num)).all()
 
-	return render_template('test.html', user=current_user, table_name=table_name.capitalize(), table=table)
+	if pages == int(page_num):
+		table = table[(int(page_num)-1)*page_size:]
+	else:
+		table = table[-page_size:]
+	return render_template('test.html', user=current_user, table_name=table_name, table=table, page_num=page_num, pages=pages)
 
 @views.route('/table/<table_name>/<match_id>/<game_num>')
 def table_drill(table_name, match_id, game_num):
-	if table_name.capitalize() == 'Matches':
-		table = Match.query.filter_by(user_id=current_user.id).order_by(Match.match_id).limit(25).all() 
-	elif table_name.capitalize() == 'Games':
-		table = Game.query.filter_by(user_id=current_user.id, match_id=match_id, p1=current_user.username).order_by(Game.match_id).limit(25).all() 
-	elif table_name.capitalize() == 'Plays':
+	if table_name.lower() == 'games':
+		table = Game.query.filter_by(user_id=current_user.id, match_id=match_id, p1=current_user.username).order_by(Game.match_id).all() 
+	elif table_name.lower() == 'plays':
 		table = Play.query.filter_by(user_id=current_user.id, match_id=match_id, game_num=game_num).order_by(Play.match_id).all()  
 
-	return render_template('test.html', user=current_user, table_name=table_name.capitalize(), table=table)
+	return render_template('test.html', user=current_user, table_name=table_name, table=table)
 
-@views.route('/table/<table_name>/<draft_id>')
+@views.route('/table/<table_name>/<draft_id>/0')
 def draft_drill(table_name, draft_id):
-	if table_name.capitalize() == 'Picks':
+	if table_name.lower() == 'picks':
 		table = Pick.query.filter_by(user_id=current_user.id, draft_id=draft_id).order_by(Pick.pick_ovr).all()  
 
-	return render_template('test.html', user=current_user, table_name=table_name.capitalize(), table=table)
+	return render_template('test.html', user=current_user, table_name=table_name, table=table)
 
 @views.route('/revise', methods=['POST'])
 def revise():
@@ -306,28 +327,92 @@ def revise():
 	fmt = request.form.get('Format')
 	limited_format = request.form.get('Limited_Format')
 	match_type = request.form.get('Match_Type')
+	page_num = request.form.get('Page_Num')
 
-	# if (not inputs[0]) or (not inputs[1]) or (not inputs[2]) or (not inputs[3]):
-	# 	error_message = 'Please fill in all fields.'
-	# 	return render_template('register.html', user=current_user, error_message=error_message, inputs=inputs)
-	# elif inputs[1] != inputs[2]:
-	# 	error_message = 'Passwords do not match.'
-	# 	return render_template('register.html', user=current_user, error_message=error_message, inputs=inputs)
-	# else:
-	# 	new_user = User(email=inputs[0], pwd=generate_password_hash(inputs[1], method='sha256'), username=inputs[3])
-	# 	db.session.add(new_user)
-	# 	db.session.commit()
-	# 	success_message = 'New user created.'
-	# 	login_user(new_user, remember=True)
-	# 	return render_template('index.html', user=current_user, success_message=success_message)
+	matches = Match.query.filter_by(match_id=match_id).all()
+	for match in matches:
+		if match.p1 == current_user.username:
+			match.p1_arch = p1_arch
+			match.p1_subarch = p1_subarch
+			match.p2_arch = p2_arch
+			match.p2_subarch = p2_subarch
+		else:
+			match.p1_arch = p2_arch 
+			match.p1_subarch = p2_subarch 
+			match.p2_arch = p1_arch
+			match.p2_subarch = p1_subarch
+		match.format = fmt 
+		match.limited_format = limited_format
+		match.match_type = match_type
 
-	# return render_template('form.html', user=current_user, inputs=inputs)
-	return render_template('index.html', user=current_user, success_message="revise button clicked")
+	pages = math.ceil(Match.query.filter_by(user_id=current_user.id).count()/page_size)
+	table = Match.query.filter_by(user_id=current_user.id).order_by(Match.match_id).limit(page_size*int(page_num)).all()
+	#table = Match.query.filter_by(user_id=current_user.id, p1=current_user.username).order_by(Match.match_id).limit(page_size*int(page_num)).all()
+	if pages == int(page_num):
+		table = table[(int(page_num)-1)*page_size:]
+	else:
+		table = table[-page_size:]
+
+	try:
+		db.session.commit()
+		return render_template('test.html', user=current_user, table_name="matches", table=table, page_num=page_num, pages=pages, success_message="Record Updated.")
+	except:
+		return render_template('test.html', user=current_user, table_name="matches", table=table, page_num=page_num, pages=pages, error_message="Error Updating Record.")
+
+@views.route('/revise_multi', methods=['POST'])
+def revise_multi():
+	match_id_str = request.form.get('Match_ID_Multi')
+	field_to_change = request.form.get('FieldToChangeMulti')
+	p1_arch = request.form.get('P1ArchMulti')
+	p1_subarch = request.form.get('P1_Subarch_Multi')
+	p2_arch = request.form.get('P2ArchMulti')
+	p2_subarch = request.form.get('P2_Subarch_Multi')
+	fmt = request.form.get('FormatMulti')
+	limited_format = request.form.get('Limited_FormatMulti')
+	match_type = request.form.get('Match_TypeMulti')
+	page_num = request.form.get('Page_Num_Multi')
+
+	match_ids = match_id_str.split(',')
+
+	matches = Match.query.filter(Match.match_id.in_(match_ids)).all()
+	for match in matches:
+		if field_to_change == 'P1 Deck':
+			if match.p1 == current_user.username:
+				match.p1_arch = p1_arch
+				match.p1_subarch = p1_subarch
+			else:
+				match.p2_arch = p1_arch 
+				match.p2_subarch = p1_subarch 
+		elif field_to_change == 'P2 Deck':
+			if match.p1 == current_user.username:
+				match.p2_arch = p2_arch
+				match.p2_subarch = p2_subarch
+			else:
+				match.p1_arch = p2_arch 
+				match.p1_subarch = p2_subarch
+		elif field_to_change == 'Format':
+			match.format = fmt 
+			match.limited_format = limited_format
+		elif field_to_change == 'Match Type':
+			match.match_type = match_type
+
+	pages = math.ceil(Match.query.filter_by(user_id=current_user.id).count()/page_size)
+	table = Match.query.filter_by(user_id=current_user.id).order_by(Match.match_id).limit(page_size*int(page_num)).all()
+	#table = Match.query.filter_by(user_id=current_user.id, p1=current_user.username).order_by(Match.match_id).limit(page_size*int(page_num)).all()
+	if pages == int(page_num):
+		table = table[(int(page_num)-1)*page_size:]
+	else:
+		table = table[-page_size:]
+
+	try:
+		db.session.commit()
+		return render_template('test.html', user=current_user, table_name="matches", table=table, page_num=page_num, pages=pages, success_message="Record Updated.")
+	except:
+		return render_template('test.html', user=current_user, table_name="matches", table=table, page_num=page_num, pages=pages, error_message="Error Updating Record.")
 
 @views.route('/values/<match_id>')
 def values(match_id):
 	match = Match.query.filter_by(match_id=match_id, user_id=current_user.id, p1=current_user.username).first()
-	print(match)
 	return match.as_dict()
 
 @views.route('/test2/<row>')
