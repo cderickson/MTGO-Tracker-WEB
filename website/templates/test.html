@@ -19,6 +19,12 @@
 
   <div class="container-fluid">
 
+    {% if error_message %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{ error_message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
     {% if success_message %}
     <div class="alert alert-success alert-dismissible fade show" role="alert">
       {{ success_message }}
@@ -26,26 +32,36 @@
     </div>
     {% endif %}
 
-    <h1><center>{{ table_name }} Table</center></h1>
+    <h1><center>{{ table_name | capitalize }} Table</center></h1><br>
 
-    <form action="/load" method="POST">
-      <button type="submit" class="btn btn-secondary">Load Data</button>
-    </form>
-    <form action="/load_drafts" method="POST">
-      <button type="submit" class="btn btn-secondary">Load Drafts</button>
-    </form>
-    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@getbootstrap">Revise Record</button>
-
-    <br>
-
-  </div>
+    {% if (table_name | capitalize) == 'Matches' %}
+    <div class="row">
+      <div class="col text-end">
+        <form action="/load" method="POST">
+          <button type="submit" class="btn btn-secondary">Load Data</button>
+        </form>
+      </div>
+      <div class="col-md-auto">
+        <form action="/load_drafts" method="POST">
+          <button type="submit" class="btn btn-secondary">Load Drafts</button>
+        </form>
+      </div>
+      <div class="col-md-auto">
+        <button disabled id="ReviseButton" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#ReviseModal" data-bs-whatever="@getbootstrap">Revise Record</button>
+      </div>
+      <div class="col">
+        <button disabled id="ReviseButton" type="button" class="btn btn-secondary">Export</button>
+      </div>
+    </div>
+  </div><br>
+  {% endif %}
 
   <div class="container-fluid">
     <div class="row justify-content-center">
       <table class="table table-sm w-auto table-bordered user-select-none">
         <thead class="table-dark">
           <tr>
-            {% if table_name == 'Matches' %}
+            {% if (table_name | capitalize) == 'Matches' %}
             <th scope="col" class="text-center">Match_ID</th>
             <th scope="col" class="text-center">P1</th>
             <th scope="col" class="text-center">P1_Arch</th>
@@ -64,7 +80,7 @@
             <th scope="col" class="text-center">Match_Type</th>
             <th scope="col" class="text-center">Date</th>
             {% endif %}
-            {% if table_name == 'Games' %}
+            {% if (table_name | capitalize) == 'Games' %}
             <th scope="col" class="text-center">Match_ID</th>
             <th scope="col" class="text-center">P1</th>
             <th scope="col" class="text-center">P2</th>
@@ -78,7 +94,7 @@
             <th scope="col" class="text-center">Turns</th>
             <th scope="col" class="text-center">Game_Winner</th>
             {% endif %}
-            {% if table_name == 'Plays' %}
+            {% if (table_name | capitalize) == 'Plays' %}
             <th scope="col" class="text-center">Game_Num</th>
             <th scope="col" class="text-center">Play_Num</th>
             <th scope="col" class="text-center">Turn_Num</th>
@@ -95,7 +111,7 @@
             <th scope="col" class="text-center">Active_Player</th>
             <th scope="col" class="text-center">Non-Active_Player</th>
             {% endif %}
-            {% if table_name == 'Drafts' %}
+            {% if (table_name | capitalize) == 'Drafts' %}
             <th scope="col" class="text-center">Draft_ID</th>
             <th scope="col" class="text-center">Hero</th>
             <th scope="col" class="text-center">Player2</th>
@@ -110,7 +126,7 @@
             <th scope="col" class="text-center">Format</th>
             <th scope="col" class="text-center">Date</th>
             {% endif %}
-            {% if table_name == 'Picks' %}
+            {% if (table_name | capitalize) == 'Picks' %}
             <th scope="col" class="text-center">Card</th>
             <th scope="col" class="text-center">Pack_Num</th>
             <th scope="col" class="text-center">Pick_Num</th>
@@ -135,7 +151,7 @@
         <tbody style="cursor:pointer;" title="double click to get data">
           {% for row in table %}
           <tr class="jsTableRow">
-            {% if table_name == 'Matches' %}
+            {% if (table_name | capitalize) == 'Matches' %}
             <th scope="row">{{ row.match_id }}</th>
             <td class="text-center">{{ row.p1 }}</td>
             <td class="text-center">{{ row.p1_arch }}</td>
@@ -154,7 +170,7 @@
             <td class="text-center">{{ row.match_type }}</td>
             <td class="text-center"><nobr>{{ row.date }}</nobr></td>
             {% endif %}
-            {% if table_name == 'Games' %}
+            {% if (table_name | capitalize) == 'Games' %}
             <th scope="row">{{ row.match_id }}</th>
             <td class="text-center">{{ row.p1 }}</td>
             <td class="text-center">{{ row.p2 }}</td>
@@ -168,7 +184,7 @@
             <td class="text-center">{{ row.turns }}</td>
             <td class="text-center">{{ row.game_winner }}</td>
             {% endif %}
-            {% if table_name == 'Plays' %}
+            {% if (table_name | capitalize) == 'Plays' %}
             <td class="text-center">{{ row.game_num }}</td>
             <td class="text-center">{{ row.play_num }}</td>
             <td class="text-center">{{ row.turn_num }}</td>
@@ -185,7 +201,7 @@
             <td class="text-center">{{ row.active_player }}</td>
             <td class="text-center">{{ row.non_active_player }}</td>
             {% endif %}
-            {% if table_name == 'Drafts' %}
+            {% if (table_name | capitalize) == 'Drafts' %}
             <th scope="row">{{ row.draft_id }}</th>
             <td class="text-center">{{ row.hero }}</td>
             <td class="text-center">{{ row.player2 }}</td>
@@ -200,7 +216,7 @@
             <td class="text-center">{{ row.format }}</td>
             <td class="text-center">{{ row.date }}</td>
             {% endif %}
-            {% if table_name == 'Picks' %}
+            {% if (table_name | capitalize) == 'Picks' %}
             <th scope="row">{{ row.card }}</th>
             <td class="text-center">{{ row.pack_num }}</td>
             <td class="text-center">{{ row.pick_num }}</td>
@@ -227,18 +243,56 @@
     </div>
   </div>
 
+  {% if page_num %}
+
+  {% if (page_num | int) == 1 %}
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col text-end">
+        <button disabled id="PrevButton" type="button" class="btn btn-secondary" onclick="window.location.href='/table/{{ table_name }}/{{ ((page_num | int) -1) | string }}'">Prev</button>
+      </div>
+      <div class="col">
+        <button id="NextButton" type="button" class="btn btn-secondary" onclick="window.location.href='/table/{{ table_name }}/{{ ((page_num | int) +1) | string }}'">Next</button>
+      </div>
+    </div>
+  </div>
+  {% elif (page_num | int) == (pages | int) %}
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col text-end">
+        <button id="PrevButton" type="button" class="btn btn-secondary" onclick="window.location.href='/table/{{ table_name }}/{{ ((page_num | int) -1) | string }}'">Prev</button>
+      </div>
+      <div class="col">
+        <button disabled id="NextButton" type="button" class="btn btn-secondary" onclick="window.location.href='/table/{{ table_name }}/{{ ((page_num | int) +1) | string }}'">Next</button>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col text-end">
+        <button id="PrevButton" type="button" class="btn btn-secondary" onclick="window.location.href='/table/{{ table_name }}/{{ ((page_num | int) -1) | string }}'">Prev</button>
+      </div>
+      <div class="col">
+        <button id="NextButton" type="button" class="btn btn-secondary" onclick="window.location.href='/table/{{ table_name }}/{{ ((page_num | int) +1) | string }}'">Next</button>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  
   <form action="/revise" method="POST">
+    <input type="hidden" name="Page_Num"  id="Page_Num" value="{{ page_num }}">
     <input type="hidden" name="Match_ID"  id="Match_ID" value="NA">
     <input type="hidden" name="P1Arch"  id="P1Arch" value="NA">
     <input type="hidden" name="P2Arch"  id="P2Arch" value="NA">
     <input type="hidden" name="Format"  id="Format" value="NA">
     <input type="hidden" name="Limited_Format"  id="Limited_Format" value="NA">
     <input type="hidden" name="Match_Type"  id="Match_Type" value="NA">
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="ReviseModal" tabindex="-1" aria-labelledby="ReviseModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Revise Record</h1>
+            <h1 class="modal-title fs-5" id="ReviseModalLabel">Revise Record</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -338,5 +392,161 @@
       </div>
     </div>
   </form>
+
+  <form action="/revise_multi" method="POST">
+    <input type="hidden" name="Page_Num_Multi"  id="Page_Num_Multi" value="{{ page_num }}">
+    <input type="hidden" name="FieldToChangeMulti"  id="FieldToChangeMulti" value="NA">
+    <input type="hidden" name="Match_ID_Multi"  id="Match_ID_Multi" value="NA">
+    <input type="hidden" name="P1ArchMulti"  id="P1ArchMulti" value="NA">
+    <input type="hidden" name="P2ArchMulti"  id="P2ArchMulti" value="NA">
+    <input type="hidden" name="FormatMulti"  id="FormatMulti" value="NA">
+    <input type="hidden" name="Limited_FormatMulti"  id="Limited_FormatMulti" value="NA">
+    <input type="hidden" name="Match_TypeMulti"  id="Match_TypeMulti" value="NA">
+    <div class="modal fade" id="ReviseMultiModal" tabindex="-1" aria-labelledby="ReviseMultiModal" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="ReviseMultiModalLabel">Revise Multiple Records</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <form>
+                <div class="row text-center" id="FieldToChange">
+                  <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="FieldToChangeButton" name="FieldToChangeButton" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      P1 Deck
+                    </button>
+                    <ul class="dropdown-menu" id="FieldToChangeMenu">
+                      <li><a class="dropdown-item" onclick="showP1Field(this)">P1 Deck</a></li>
+                      <li><a class="dropdown-item" onclick="showP2Field(this)">P2 Deck</a></li>
+                      <li><a class="dropdown-item" onclick="showFormatField(this)">Format</a></li>
+                      <li><a class="dropdown-item" onclick="showMatchTypeField(this)">Match Type</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <hr>
+
+                <div class="row">
+                  <div class="col-4 text-end" id="P1ArchCol1" style="display:block">
+                    <label for="P1ArchButtonMulti" class="form-label"><span class="align-middle"><b>P1_Arch:</b></span></label>
+                  </div>
+                  <div class="col-8 text-end" id="P1ArchCol2" style="display:block">
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="P1ArchButtonMulti" name="P1ArchButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        P1_Arch
+                      </button>
+                      <ul class="dropdown-menu" id="P1ArchMenu">
+                        <li><a class="dropdown-item" onclick="showP1ArchMulti(this)">Aggro</a></li>
+                        <li><a class="dropdown-item" onclick="showP1ArchMulti(this)">Midrange</a></li>
+                        <li><a class="dropdown-item" onclick="showP1ArchMulti(this)">Control</a></li>
+                        <li><a class="dropdown-item" onclick="showP1ArchMulti(this)">Combo</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div><br id=P1DeckBR1 style="display:block">
+
+                <div class="row">
+                  <div class="col-4 text-end" id="P1SubarchCol1" style="display:block">
+                    <label for="P1_Subarch" class="form-label"><span class="align-middle"><b>P1_Subarch:</b></span></label>
+                  </div>
+                  <div class="col-8 text-end" id="P1SubarchCol2" style="display:block"><input type="text" class="form-control" id="P1_Subarch_Multi" name="P1_Subarch_Multi" placeholder="P1_Subarch" value="P1_Subarch"></div>
+                </div><br id=P1DeckBR2 style="display:none">
+
+                <div class="row">
+                  <div class="col-4 text-end" id="P2ArchCol1" style="display:none">
+                    <label for="P2ArchButtonMulti" class="form-label"><span class="align-middle"><b>P2_Arch:</b></span></label>
+                  </div>
+                  <div class="col-8 text-end" id="P2ArchCol2" style="display:none">
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="P2ArchButtonMulti" name="P2ArchButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        P2_Arch
+                      </button>
+                      <ul class="dropdown-menu" id="P2ArchMenu">
+                        <li><a class="dropdown-item" onclick="showP2ArchMulti(this)">Aggro</a></li>
+                        <li><a class="dropdown-item" onclick="showP2ArchMulti(this)">Midrange</a></li>
+                        <li><a class="dropdown-item" onclick="showP2ArchMulti(this)">Control</a></li>
+                        <li><a class="dropdown-item" onclick="showP2ArchMulti(this)">Combo</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div><br id=P2DeckBR1 style="display:none">
+
+                <div class="row">
+                  <div class="col-4 text-end" id="P2SubarchCol1" style="display:none">
+                    <label for="P2_Subarch_Multi" class="form-label"><span class="align-middle"><b>P2_Subarch:</b></span></label>
+                  </div>
+                  <div class="col-8 text-end" id="P2SubarchCol2" style="display:none"><input type="text" class="form-control" id="P2_Subarch_Multi" name="P2_Subarch_Multi" placeholder="P2_Subarch" value="P2_Subarch"></div>
+                </div><br id=P2DeckBR2 style="display:none">
+
+                <div class="row">
+                  <div class="col-4 text-end" id="FormatCol1" style="display:none">
+                    <label for="FormatButtonMulti" class="form-label"><span class="align-middle"><b>Format:</b></span></label>
+                  </div>
+                  <div class="col-8 text-end" id="FormatCol2" style="display:none">
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="FormatButtonMulti" name="FormatButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        NA
+                      </button>
+                      <ul class="dropdown-menu" id="FormatMenu">
+                        <li><a class="dropdown-item" onclick="showFormatMulti(this)">Aggro</a></li>
+                        <li><a class="dropdown-item" onclick="showFormatMulti(this)">Midrange</a></li>
+                        <li><a class="dropdown-item" onclick="showFormatMulti(this)">Control</a></li>
+                        <li><a class="dropdown-item" onclick="showFormatMulti(this)">Combo</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div><br id=FormatBR1 style="display:none">
+
+                <div class="row">
+                  <div class="col-4 text-end" id="LimitedFormatCol1" style="display:none">
+                    <label for="LimitedFormatButtonMulti" class="form-label"><span class="align-middle"><b>Limited_Format:</b></span></label>
+                  </div>
+                  <div class="col-8 text-end" id="LimitedFormatCol2" style="display:none">
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="LimitedFormatButtonMulti" name="LimitedFormatButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        NA
+                      </button>
+                      <ul class="dropdown-menu" id="LimitedFormatMenu">
+                        <li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">Aggro</a></li>
+                        <li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">Midrange</a></li>
+                        <li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">Control</a></li>
+                        <li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">Combo</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div><br id=FormatBR2 style="display:none">
+
+                <div class="row">
+                  <div class="col-4 text-end" id="MatchTypeCol1" style="display:none">
+                    <label for="MatchTypeButtonMulti" class="form-label"><span class="align-middle"><b>Match_Type:</b></span></label>
+                  </div>
+                  <div class="col-8 text-end" id="MatchTypeCol2" style="display:none">
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="MatchTypeButtonMulti" name="MatchTypeButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        NA
+                      </button>
+                      <ul class="dropdown-menu" id="MatchTypeMenu">
+                        <li><a class="dropdown-item" onclick="showMatchTypeMulti(this)">Aggro</a></li>
+                        <li><a class="dropdown-item" onclick="showMatchTypeMulti(this)">Midrange</a></li>
+                        <li><a class="dropdown-item" onclick="showMatchTypeMulti(this)">Control</a></li>
+                        <li><a class="dropdown-item" onclick="showMatchTypeMulti(this)">Combo</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+              </form>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary"  onclick="changeHiddenInputsMulti()"">Apply Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  {% endif %}
 
 {% endblock %}
