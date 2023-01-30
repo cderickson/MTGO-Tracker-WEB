@@ -19,7 +19,7 @@
           } else if (table == "Games"){
             window.location.href = '/table/plays/'+str[0]+'/'+str[3]
           } else if (table == "Drafts"){
-            window.location.href = '/table/picks/'+str[0]
+            window.location.href = '/table/picks/'+str[0]+'/0'
           }
         });
       });
@@ -34,12 +34,24 @@
     <script>
       $(document).ready(function(){
         $("tr").click(function(){
+          //console.log(document.getElementById("Page_Num").value)
           var myarray = [];
           $(".active").each(function() {
               //console.log($(this).html());
               myarray.push($(this).text().trim().replace(/\s\s+/g, ' ').split(" "));
           });
           //console.log(myarray);
+          const match_ids = myarray.map(innerArray => innerArray[0]);
+          console.log(match_ids)
+          if (myarray.length === 1){
+            document.getElementById("ReviseButton").disabled = false;
+            document.getElementById("ReviseButton").setAttribute("data-bs-target", "#ReviseModal");
+          } else if (myarray.length > 1){
+            document.getElementById("ReviseButton").disabled = false;
+            document.getElementById("ReviseButton").setAttribute("data-bs-target", "#ReviseMultiModal");
+          } else if (myarray.length === 0){
+            document.getElementById("ReviseButton").disabled = true;
+          };
         });
       });
     </script>
@@ -54,13 +66,13 @@
           if (toRevise.length > 0){
             fetch('/values/'+toRevise[0]).then(function(response){
               response.json().then(function(data){
-                document.getElementById("exampleModalLabel").innerHTML = 'Revise Record - ' + data.match_id;
+                document.getElementById("ReviseModalLabel").innerHTML = 'Revise Record - ' + data.match_id;
                 document.getElementById("ModalDate").innerHTML = '<center><b>Date Played:</b> ' + data.date + '</center>';
                 document.getElementById("ModalP1").innerHTML = '<b>P1:</b> ' + data.p1;
                 document.getElementById("ModalP2").innerHTML = '<b>P2:</b> ' + data.p2;
                 document.getElementById('P1_Subarch').value = data.p1_subarch;
                 document.getElementById('P2_Subarch').value = data.p2_subarch;
-                console.log(data)
+                //console.log(data)
               });
             });
           };
@@ -102,19 +114,126 @@
         console.log(item.innerHTML)}
       function showLimitedFormat(item) {document.getElementById("LimitedFormatButton").innerHTML = item.innerHTML;}
       function showMatchType(item) {document.getElementById("MatchTypeButton").innerHTML = item.innerHTML;}
+      function changeHiddenInputsMulti() {
+        var match_ids = "";
+        $(".active").each(function() {
+            match_ids = match_ids + "," + ($(this).text().trim().replace(/\s\s+/g, ' ').split(" ")[0]);
+        });
+        match_ids = match_ids.substring(1)
+        console.log(match_ids)
+        document.getElementById("Match_ID_Multi").value = match_ids
+        document.getElementById("FieldToChangeMulti").value = document.getElementById("FieldToChangeButton").innerHTML.trim()
+        document.getElementById("P1ArchMulti").value = document.getElementById("P1ArchButtonMulti").innerHTML.trim()
+        document.getElementById("P2ArchMulti").value = document.getElementById("P2ArchButtonMulti").innerHTML.trim()
+        document.getElementById("FormatMulti").value = document.getElementById("FormatButtonMulti").innerHTML.trim()
+        document.getElementById("Limited_FormatMulti").value = document.getElementById("LimitedFormatButtonMulti").innerHTML.trim()
+        document.getElementById("Match_TypeMulti").value = document.getElementById("MatchTypeButtonMulti").innerHTML.trim()
+      }
       function changeHiddenInputs() {
-        document.getElementById("Match_ID").value = document.getElementById("exampleModalLabel").innerHTML.trim().split(" - ")[1]
+        document.getElementById("Match_ID").value = document.getElementById("ReviseModalLabel").innerHTML.trim().split(" - ")[1]
         document.getElementById("P1Arch").value = document.getElementById("P1ArchButton").innerHTML.trim()
         document.getElementById("P2Arch").value = document.getElementById("P2ArchButton").innerHTML.trim()
         document.getElementById("Format").value = document.getElementById("FormatButton").innerHTML.trim()
         document.getElementById("Limited_Format").value = document.getElementById("LimitedFormatButton").innerHTML.trim()
         document.getElementById("Match_Type").value = document.getElementById("MatchTypeButton").innerHTML.trim()
-        console.log(document.getElementById("P1Arch").value)
-        console.log(document.getElementById("P2Arch").value)
-        console.log(document.getElementById("Format").value)
-        console.log(document.getElementById("Limited_Format").value)
-        console.log(document.getElementById("Match_Type").value)
       }
+      function showP1Field(item) {
+        document.getElementById("FieldToChangeButton").innerHTML = item.innerHTML;
+        document.getElementById("P1ArchCol1").style.display = 'block'
+        document.getElementById("P1ArchCol2").style.display = 'block'
+        document.getElementById("P1SubarchCol1").style.display = 'block'
+        document.getElementById("P1SubarchCol2").style.display = 'block'
+        document.getElementById("P2ArchCol1").style.display = 'none'
+        document.getElementById("P2ArchCol2").style.display = 'none'
+        document.getElementById("P2SubarchCol1").style.display = 'none'
+        document.getElementById("P2SubarchCol2").style.display = 'none'
+        document.getElementById("FormatCol1").style.display = 'none'
+        document.getElementById("FormatCol2").style.display = 'none'
+        document.getElementById("LimitedFormatCol1").style.display = 'none'
+        document.getElementById("LimitedFormatCol2").style.display = 'none'
+        document.getElementById("MatchTypeCol1").style.display = 'none'
+        document.getElementById("MatchTypeCol2").style.display = 'none'
+        document.getElementById("P1DeckBR1").style.display = "block";
+        document.getElementById("P1DeckBR2").style.display = "none";
+        document.getElementById("P2DeckBR1").style.display = "none";
+        document.getElementById("P2DeckBR2").style.display = "none";
+        document.getElementById("FormatBR1").style.display = "none";
+        document.getElementById("FormatBR2").style.display = "none";
+      }
+      function showP2Field(item) {
+        document.getElementById("FieldToChangeButton").innerHTML = item.innerHTML;
+        document.getElementById("P1ArchCol1").style.display = 'none'
+        document.getElementById("P1ArchCol2").style.display = 'none'
+        document.getElementById("P1SubarchCol1").style.display = 'none'
+        document.getElementById("P1SubarchCol2").style.display = 'none'
+        document.getElementById("P2ArchCol1").style.display = 'block'
+        document.getElementById("P2ArchCol2").style.display = 'block'
+        document.getElementById("P2SubarchCol1").style.display = 'block'
+        document.getElementById("P2SubarchCol2").style.display = 'block'
+        document.getElementById("FormatCol1").style.display = 'none'
+        document.getElementById("FormatCol2").style.display = 'none'
+        document.getElementById("LimitedFormatCol1").style.display = 'none'
+        document.getElementById("LimitedFormatCol2").style.display = 'none'
+        document.getElementById("MatchTypeCol1").style.display = 'none'
+        document.getElementById("MatchTypeCol2").style.display = 'none'
+        document.getElementById("P1DeckBR1").style.display = "none";
+        document.getElementById("P1DeckBR2").style.display = "none";
+        document.getElementById("P2DeckBR1").style.display = "block";
+        document.getElementById("P2DeckBR2").style.display = "none";
+        document.getElementById("FormatBR1").style.display = "none";
+        document.getElementById("FormatBR2").style.display = "none";
+      }
+      function showFormatField(item) {
+        document.getElementById("FieldToChangeButton").innerHTML = item.innerHTML;
+        document.getElementById("P1ArchCol1").style.display = 'none'
+        document.getElementById("P1ArchCol2").style.display = 'none'
+        document.getElementById("P1SubarchCol1").style.display = 'none'
+        document.getElementById("P1SubarchCol2").style.display = 'none'
+        document.getElementById("P2ArchCol1").style.display = 'none'
+        document.getElementById("P2ArchCol2").style.display = 'none'
+        document.getElementById("P2SubarchCol1").style.display = 'none'
+        document.getElementById("P2SubarchCol2").style.display = 'none'
+        document.getElementById("FormatCol1").style.display = 'block'
+        document.getElementById("FormatCol2").style.display = 'block'
+        document.getElementById("LimitedFormatCol1").style.display = 'block'
+        document.getElementById("LimitedFormatCol2").style.display = 'block'
+        document.getElementById("MatchTypeCol1").style.display = 'none'
+        document.getElementById("MatchTypeCol2").style.display = 'none'
+        document.getElementById("P1DeckBR1").style.display = "none";
+        document.getElementById("P1DeckBR2").style.display = "none";
+        document.getElementById("P2DeckBR1").style.display = "none";
+        document.getElementById("P2DeckBR2").style.display = "none";
+        document.getElementById("FormatBR1").style.display = "block";
+        document.getElementById("FormatBR2").style.display = "none";
+      }
+      function showMatchTypeField(item) {
+        document.getElementById("FieldToChangeButton").innerHTML = item.innerHTML;
+        document.getElementById("P1ArchCol1").style.display = 'none'
+        document.getElementById("P1ArchCol2").style.display = 'none'
+        document.getElementById("P1SubarchCol1").style.display = 'none'
+        document.getElementById("P1SubarchCol2").style.display = 'none'
+        document.getElementById("P2ArchCol1").style.display = 'none'
+        document.getElementById("P2ArchCol2").style.display = 'none'
+        document.getElementById("P2SubarchCol1").style.display = 'none'
+        document.getElementById("P2SubarchCol2").style.display = 'none'
+        document.getElementById("FormatCol1").style.display = 'none'
+        document.getElementById("FormatCol2").style.display = 'none'
+        document.getElementById("LimitedFormatCol1").style.display = 'none'
+        document.getElementById("LimitedFormatCol2").style.display = 'none'
+        document.getElementById("MatchTypeCol1").style.display = 'block'
+        document.getElementById("MatchTypeCol2").style.display = 'block'
+        document.getElementById("P1DeckBR1").style.display = "none";
+        document.getElementById("P1DeckBR2").style.display = "none";
+        document.getElementById("P2DeckBR1").style.display = "none";
+        document.getElementById("P2DeckBR2").style.display = "none";
+        document.getElementById("FormatBR1").style.display = "none";
+        document.getElementById("FormatBR2").style.display = "none";
+      }
+      function showP1ArchMulti(item) {document.getElementById("P1ArchButtonMulti").innerHTML = item.innerHTML;}
+      function showP2ArchMulti(item) {document.getElementById("P2ArchButtonMulti").innerHTML = item.innerHTML;}
+      function showFormatMulti(item) {document.getElementById("FormatButtonMulti").innerHTML = item.innerHTML;}
+      function showLimitedFormatMulti(item) {document.getElementById("LimitedFormatButtonMulti").innerHTML = item.innerHTML;}
+      function showMatchTypeMulti(item) {document.getElementById("MatchTypeButtonMulti").innerHTML = item.innerHTML;}
     </script>
 
   </head>
@@ -140,11 +259,21 @@
                 Tables
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='Matches') }}">Matches</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='Games') }}">Games</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='Plays') }}">Plays</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='Drafts') }}">Drafts</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='Picks') }}">Draft Picks</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='matches', page_num=1) }}">Matches</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='games', page_num=1) }}">Games</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='plays', page_num=1) }}">Plays</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='drafts', page_num=1) }}">Drafts</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='picks', page_num=1) }}">Draft Picks</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Data Cleaning
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Best Guess Deck Names</a></li>
+                <li><a class="dropdown-item" href="#">Get Missing Game Winners</a></li>
+                <li><a class="dropdown-item" href="#">Apply Associated Draft_IDs</a></li>
               </ul>
             </li>
             {% else %}
@@ -155,14 +284,12 @@
               <a class="nav-link" href="{{ url_for('views.login') }}">Login</a>
             </li>
             {% endif %}
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('views.test') }}">test</a>
-            </li>
         </div>
       </div>
     </nav>
 
     <br><br>
+    
   {% block content %}
   {% endblock %}
 
