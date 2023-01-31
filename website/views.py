@@ -1,5 +1,6 @@
 from flask import render_template, request, Blueprint, flash
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 from flask_login import login_user, login_required, logout_user, current_user
 from datetime import datetime
 from .models import User, Match, Game, Play, Pick, Draft
@@ -286,6 +287,7 @@ def table(table_name, page_num):
 		table = Play.query.filter_by(user_id=current_user.id).order_by(Play.match_id).limit(page_size*int(page_num)).all()
 	elif table_name.lower() == 'drafts':
 		pages = math.ceil(Draft.query.filter_by(user_id=current_user.id).count()/page_size)
+		print(pages)
 		if (int(page_num) < 1) or (int(page_num) > pages):
 			page_num = 0
 		table = Draft.query.filter_by(user_id=current_user.id).order_by(Draft.draft_id).limit(page_size*int(page_num)).all()
@@ -301,19 +303,14 @@ def table(table_name, page_num):
 		table = table[-page_size:]
 	return render_template('test.html', user=current_user, table_name=table_name, table=table, page_num=page_num, pages=pages)
 
-@views.route('/table/<table_name>/<match_id>/<game_num>')
-def table_drill(table_name, match_id, game_num):
+@views.route('/table/<table_name>/<row_id>/<game_num>')
+def table_drill(table_name, row_id, game_num):
 	if table_name.lower() == 'games':
-		table = Game.query.filter_by(user_id=current_user.id, match_id=match_id, p1=current_user.username).order_by(Game.match_id).all() 
+		table = Game.query.filter_by(user_id=current_user.id, match_id=row_id, p1=current_user.username).order_by(Game.match_id).all() 
 	elif table_name.lower() == 'plays':
-		table = Play.query.filter_by(user_id=current_user.id, match_id=match_id, game_num=game_num).order_by(Play.match_id).all()  
-
-	return render_template('test.html', user=current_user, table_name=table_name, table=table)
-
-@views.route('/table/<table_name>/<draft_id>/0')
-def draft_drill(table_name, draft_id):
-	if table_name.lower() == 'picks':
-		table = Pick.query.filter_by(user_id=current_user.id, draft_id=draft_id).order_by(Pick.pick_ovr).all()  
+		table = Play.query.filter_by(user_id=current_user.id, match_id=row_id, game_num=game_num).order_by(Play.match_id).all()  
+	elif table_name.lower() == 'picks':
+		table = Pick.query.filter_by(user_id=current_user.id, draft_id=row_id).order_by(Pick.pick_ovr).all()  
 
 	return render_template('test.html', user=current_user, table_name=table_name, table=table)
 
@@ -414,6 +411,139 @@ def revise_multi():
 def values(match_id):
 	match = Match.query.filter_by(match_id=match_id, user_id=current_user.id, p1=current_user.username).first()
 	return match.as_dict()
+
+@views.route('/game_winner/<match_id>/<game_num>/<game_winner>')
+def game_winner(match_id, game_num, game_winner):
+	games = Game.query.filter_by(match_id=match_id, game_num=game_num, user_id=current_user.id).all()
+	matches = Match.query.filter_by(match_id=match_id, user_id=current_user.id).all()
+
+	if game_winner == '0':
+		next_game = Game.query.filter_by(user_id=current_user.id, game_winner='NA', p1=current_user.username)
+		next_game = next_game.filter(Game.match_id > match_id).order_by(Game.match_id).first()
+		if next_game is None:
+			return {'match_id':'NA'}
+		return next_game.as_dict()
+
+	for game in games:
+		if game.game_winner != 'NA':
+			# error handling
+			pass
+		if game.p1 == game_winner:
+			game.game_winner = 'P1'
+		elif game.p2 == game_winner:
+			game.game_winner = 'P2'
+		else:
+			# error handling
+			pass
+
+	for match in matches:
+		if match.p1 == game_winner:
+			match.p1_wins += 1
+		elif match.p2 == game_winner:
+			match.p2_wins += 1
+		else:
+			# error handling
+			pass
+		if match.p1_wins > match.p2_wins:
+			match.match_winner = 'P1'
+		elif match.p2_wins > match.p1_wins:
+			match.match_winner = 'P2'
+		elif match.p1_wins == match.p2_wins:
+			match.match_winner = 'NA'
+		else:
+			#error
+			pass
+
+	db.session.commit()
+	next_game = Game.query.filter_by(user_id=current_user.id, game_winner='NA', p1=current_user.username)
+	next_game = next_game.filter(Game.match_id > match_id).order_by(Game.match_id).first()
+	if next_game is None:
+		return {'match_id':'NA'}
+	return next_game.as_dict()
+
+@views.route('/game_winner_init')
+def game_winner_init():
+	first_game = Game.query.filter_by(user_id=current_user.id, game_winner='NA', p1=current_user.username).order_by(Game.match_id).first()
+	if first_game is None:
+		return {'match_id':'NA'}
+	return first_game.as_dict()
+
+@views.route('/draft_id_init')
+def draft_id_init():
+	# Add limited match conditions here.
+	first_match = Match.query.filter_by(user_id=current_user.id, limited_format='Booster Draft', draft_id='NA', p1=current_user.username).order_by(Match.match_id).first()
+	if first_match is None:
+		print("1")
+		return {'match_id':'NA'}
+
+	lands = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=first_match.match_id, casting_player=first_match.p1, action='Land Drop').order_by(Play.primary_card)]
+	nb_lands = [i for i in lands if (i not in ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'])]
+	spells = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=first_match.match_id, casting_player=first_match.p1, action='Casts').order_by(Play.primary_card)]
+
+	#fix this later
+	spells = [i for i in spells if (i not in ['Petty Theft','Stomp'])]
+
+	cards_dict = {'lands':[*set(lands)], 'spells':[*set(spells)]}
+	draft_ids_dict = {'possible_draft_ids':[]}
+
+	for draft in Draft.query.filter_by(user_id=current_user.id).filter(Draft.date < first_match.date).all():
+		picks = [pick.card for pick in Pick.query.filter_by(user_id=current_user.id, draft_id=draft.draft_id)]
+		if all(i in picks for i in (nb_lands + spells)):
+			draft_ids_dict['possible_draft_ids'].append(draft.draft_id)
+
+	if len(draft_ids_dict['possible_draft_ids']) == 0:
+		print("2")
+		return {'match_id':'NA'}
+
+	return first_match.as_dict() | cards_dict | draft_ids_dict
+
+@views.route('/associated_draft_id/<match_id>/<draft_id>')
+def apply_draft_id(match_id, draft_id):
+	# Add limited match conditions here.
+	next_match = Match.query.filter_by(user_id=current_user.id, limited_format='Booster Draft', draft_id='NA', p1=current_user.username)
+	next_match = next_match.filter(Match.match_id > match_id).order_by(Match.match_id).first()
+
+	if draft_id != '0':
+		matches = Match.query.filter_by(user_id=current_user.id, match_id=match_id).all()
+		for match in matches:
+			match.draft_id = draft_id
+		db.session.commit()
+
+		match_wins = 0
+		match_losses = 0
+		associated_matches = Match.query.filter_by(user_id=current_user.id, draft_id=draft_id, p1=current_user.username)
+		for match in associated_matches:
+			if match.p1_wins > match.p2_wins:
+				match_wins += 1
+			elif match.p2_wins > match.p1_wins:
+				match_losses += 1
+		draft = Draft.query.filter_by(user_id=current_user.id, draft_id=draft_id).first()
+		draft.match_wins = match_wins
+		draft.match_losses = match_losses
+		db.session.commit()
+
+	if next_match is None:
+		return {'match_id':'NA'}
+
+	lands = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=next_match.match_id, casting_player=next_match.p1, action='Land Drop').order_by(Play.primary_card)]
+	nb_lands = [i for i in lands if (i not in ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'])]
+	spells = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=next_match.match_id, casting_player=next_match.p1, action='Casts').order_by(Play.primary_card)]
+
+	#fix this later
+	spells = [i for i in spells if (i not in ['Petty Theft', 'Stomp'])]
+
+	cards_dict = {'lands':[*set(lands)], 'spells':[*set(spells)]}
+	draft_ids_dict = {'possible_draft_ids':[]}
+
+	for draft in Draft.query.filter_by(user_id=current_user.id).filter(Draft.date < next_match.date).all():
+		picks = [pick.card for pick in Pick.query.filter_by(user_id=current_user.id, draft_id=draft.draft_id)]
+		if all(i in picks for i in (nb_lands + spells)):
+			draft_ids_dict['possible_draft_ids'].append(draft.draft_id)
+
+	if len(draft_ids_dict['possible_draft_ids']) == 0:
+		return {'match_id':'NA'}
+
+	return next_match.as_dict() | cards_dict | draft_ids_dict
 
 @views.route('/test2/<row>')
 def test2(row):
