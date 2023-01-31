@@ -28,7 +28,7 @@ class Match(db.Model):
 	roll_winner = db.Column(db.String(2))
 	p1_wins = db.Column(db.Integer)
 	p2_wins = db.Column(db.Integer)
-	match_winner = db.Column(db.String(75))
+	match_winner = db.Column(db.String(2))
 	format = db.Column(db.String(20))
 	limited_format = db.Column(db.String(15))
 	match_type = db.Column(db.String(30))
@@ -51,6 +51,8 @@ class Game(db.Model):
 	p2_mulls = db.Column(db.Integer)
 	turns = db.Column(db.Integer)
 	game_winner = db.Column(db.String(2))
+	def as_dict(self):
+		return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class Play(db.Model):
 	#id = db.Column(db.Integer, primary_key=True)
