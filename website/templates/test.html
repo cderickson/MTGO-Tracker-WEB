@@ -63,6 +63,7 @@
           <tr>
             {% if (table_name | capitalize) == 'Matches' %}
             <th scope="col" class="text-center">Match_ID</th>
+            <th scope="col" class="text-center">Draft_ID</th>
             <th scope="col" class="text-center">P1</th>
             <th scope="col" class="text-center">P1_Arch</th>
             <th scope="col" class="text-center">P1_Subarch</th>
@@ -153,6 +154,7 @@
           <tr class="jsTableRow">
             {% if (table_name | capitalize) == 'Matches' %}
             <th scope="row">{{ row.match_id }}</th>
+            <td class="text-center">{{ row.draft_id }}</td>
             <td class="text-center">{{ row.p1 }}</td>
             <td class="text-center">{{ row.p1_arch }}</td>
             <td class="text-center">{{ row.p1_subarch }}</td>
@@ -251,28 +253,24 @@
       <div class="col text-end">
         <button disabled id="PrevButton" type="button" class="btn btn-secondary" onclick="window.location.href='/table/{{ table_name }}/{{ ((page_num | int) -1) | string }}'">Prev</button>
       </div>
-      <div class="col">
-        <button id="NextButton" type="button" class="btn btn-secondary" onclick="window.location.href='/table/{{ table_name }}/{{ ((page_num | int) +1) | string }}'">Next</button>
-      </div>
-    </div>
-  </div>
-  {% elif (page_num | int) == (pages | int) %}
+      <div class="col-md-auto"><span class="align-middle"><b>Page {{ page_num }} of {{ pages }}</span></b></div>
+  {% endif %}
+  {% if (page_num | int) > 1 %}
   <div class="container-fluid">
     <div class="row">
       <div class="col text-end">
         <button id="PrevButton" type="button" class="btn btn-secondary" onclick="window.location.href='/table/{{ table_name }}/{{ ((page_num | int) -1) | string }}'">Prev</button>
       </div>
+      <div class="col-md-auto"><span class="align-middle"><b>Page {{ page_num }} of {{ pages }}</span></b></div>
+  {% endif %}
+  {% if (page_num | int) == (pages | int) %}
       <div class="col">
         <button disabled id="NextButton" type="button" class="btn btn-secondary" onclick="window.location.href='/table/{{ table_name }}/{{ ((page_num | int) +1) | string }}'">Next</button>
       </div>
     </div>
   </div>
-  {% else %}
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col text-end">
-        <button id="PrevButton" type="button" class="btn btn-secondary" onclick="window.location.href='/table/{{ table_name }}/{{ ((page_num | int) -1) | string }}'">Prev</button>
-      </div>
+  {% endif %}
+  {% if (page_num | int) < (pages | int) %}
       <div class="col">
         <button id="NextButton" type="button" class="btn btn-secondary" onclick="window.location.href='/table/{{ table_name }}/{{ ((page_num | int) +1) | string }}'">Next</button>
       </div>
@@ -292,7 +290,7 @@
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="ReviseModalLabel">Revise Record</h1>
+            <h2 class="modal-title fs-5" id="ReviseModalLabel">Revise Record</h2>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -345,7 +343,7 @@
                 </div>
                 <hr>
                 <div class="row">
-                  <div class="col text-center">
+                  <div class="col text-end">
                     <div class="dropdown">
                       <button class="btn btn-secondary dropdown-toggle" type="button" id="FormatButton" name="FormatButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         Format
@@ -356,7 +354,7 @@
                       </ul>
                     </div>
                   </div>
-                  <div class="col text-center">
+                  <div class="col-md-auto">
                     <div class="dropdown">
                       <button class="btn btn-secondary dropdown-toggle" type="button" id="LimitedFormatButton" name="LimitedFormatButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true" disabled>
                         Limited_Format
@@ -368,7 +366,7 @@
                       </ul>
                     </div>
                   </div>
-                  <div class="col text-center">
+                  <div class="col">
                     <div class="dropdown">
                       <button class="btn btn-secondary dropdown-toggle" type="button" id="MatchTypeButton" name="MatchTypeButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         Match_Type
@@ -406,7 +404,7 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="ReviseMultiModalLabel">Revise Multiple Records</h1>
+            <h2 class="modal-title fs-5" id="ReviseMultiModalLabel">Revise Multiple Records</h2>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -508,7 +506,7 @@
                         NA
                       </button>
                       <ul class="dropdown-menu" id="LimitedFormatMenu">
-                        <li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">Aggro</a></li>
+                        <li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">Booster Draft</a></li>
                         <li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">Midrange</a></li>
                         <li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">Control</a></li>
                         <li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">Combo</a></li>
