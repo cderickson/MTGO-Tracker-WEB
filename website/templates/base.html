@@ -81,6 +81,135 @@
       });
     </script>
     <script>
+      function initGetWinner(){
+        fetch('/game_winner_init').then(function(response){
+          response.json().then(function(data){
+            if (data.match_id === "NA"){
+              //console.log(data)
+              document.getElementById("EndGameActions").style.display = "none";
+              document.getElementById("GameWinnerModalDate").style.display = "none";
+              document.getElementById("GameWinnerHR1").style.display = "none";
+              document.getElementById("GameWinnerHR2").style.display = "none";
+              document.getElementById("GameWinnerSkipButton").disabled = true;
+              document.getElementById("GameWinnerP1Button").disabled = true;
+              document.getElementById("GameWinnerP2Button").disabled = true;
+              document.getElementById("GameWinnerMessage").innerHTML = "<b><center>No Game records with a missing Game_Winner.</center></b>";
+            } else{
+              document.getElementById("GameWinnerModalLabel").innerHTML = 'Get Game_Winner';
+              document.getElementById("GameWinnerModalDate").innerHTML = '<center><b>' + data.match_id + ', Game ' + data.game_num + '</b></center>';
+              document.getElementById("GameWinnerP1Button").innerHTML = data.p1;
+              document.getElementById("GameWinnerP2Button").innerHTML = data.p2;
+              console.log(document.getElementById("GameWinnerP1Button").innerHTML)
+            };
+          });
+        });      
+      };
+      function applyGetWinner(winner){
+        match_id = document.getElementById("GameWinnerModalDate").innerHTML.split(",")[0].split("<b>")[1]
+        game_num = document.getElementById("GameWinnerModalDate").innerHTML.split(" Game ")[1].split("</b>")[0]
+        if (winner === "P1"){
+          game_winner = document.getElementById("GameWinnerP1Button").innerHTML
+        } else if (winner === "P2") {
+          game_winner = document.getElementById("GameWinnerP2Button").innerHTML
+        } else {
+          game_winner = '0'
+        }
+        fetch('/game_winner/'+match_id+'/'+game_num+'/'+game_winner).then(function(response){
+          response.json().then(function(data){
+            if (data.match_id === "NA"){
+              //console.log(data)
+              document.getElementById("GetWinnerCloseButton").click();
+            } else{
+              //console.log(data)
+              document.getElementById("GameWinnerModalLabel").innerHTML = 'Get Game_Winner';
+              document.getElementById("GameWinnerModalDate").innerHTML = '<center><b>' + data.match_id + ', Game ' + data.game_num + '</b></center>';
+              document.getElementById("GameWinnerP1Button").innerHTML = data.p1;
+              document.getElementById("GameWinnerP2Button").innerHTML = data.p2;
+              //console.log(data)
+            };
+          });
+        });
+      };
+    </script>
+    <script>
+      function initGetDraftId(){
+        fetch('/draft_id_init').then(function(response){
+          response.json().then(function(data){
+            if (data.match_id === "NA"){
+              //console.log(data)
+              document.getElementById("DraftIdModalDate").style.display = "none";
+              document.getElementById("DraftIdHR1").style.display = "none";
+              document.getElementById("DraftIdHR2").style.display = "none";
+              document.getElementById("DraftIdButton").style.display = "none";
+              document.getElementById("DraftIdSkipButton").disabled = true;
+              document.getElementById("DraftIdApplyButton").disabled = true;
+              document.getElementById("DraftIdMessage").innerHTML = "<b><center>No Limited Matches missing an Associated Draft_ID.<br><br>Note: Match records need to have their Format set to 'Limited' before they can be associated with a Draft.</center></b>";
+            } else{
+              document.getElementById("DraftIdModalLabel").innerHTML = 'Apply Associated Draft_IDs';
+              document.getElementById("DraftIdModalDate").innerHTML = '<center><b>' + data.match_id + '</b><br><b>Date: </b>' + data.date + '</center>';
+              document.getElementById("DraftIdLands").innerHTML = "";
+              document.getElementById("DraftIdSpells").innerHTML = "";
+              for (var i = 0; i < data.lands.length; i++){
+                document.getElementById("DraftIdLands").innerHTML += data.lands[i];
+                if (i < data.lands.length-1){
+                  document.getElementById("DraftIdLands").innerHTML += "<br>"
+                };
+              };
+              for (var i = 0; i < data.spells.length; i++){
+                document.getElementById("DraftIdSpells").innerHTML += data.spells[i];
+                if (i < data.spells.length-1){
+                  document.getElementById("DraftIdSpells").innerHTML += "<br>"
+                };
+              };
+              document.getElementById("DraftIdButton").innerHTML = data.possible_draft_ids[0];
+              for (var i = 1; i < data.possible_draft_ids.length; i++){
+                document.getElementById("DraftIdMenu").innerHTML += '<li><a class="dropdown-item" onclick="showAssociatedDraftId(this)">'+data.possible_draft_ids[i]+'</a></li>';
+              };
+            };
+          });
+        });      
+      };
+      function applyGetDraftId(skip){
+        match_id = document.getElementById("DraftIdModalDate").innerHTML.split("</b><br>")[0].split("<b>")[1]
+        if (skip){
+          draft_id = "0";
+        } else{
+          draft_id = document.getElementById("DraftIdButton").innerHTML
+        }
+        console.log(match_id+","+draft_id)
+        fetch('/associated_draft_id/'+match_id+'/'+draft_id).then(function(response){
+          response.json().then(function(data){
+            console.log(data)
+            if (data.match_id === "NA"){
+              //console.log(data)
+              document.getElementById("DraftIdCloseButton").click();
+            } else{
+              document.getElementById("DraftIdModalLabel").innerHTML = 'Apply Associated Draft_IDs';
+              document.getElementById("DraftIdModalDate").innerHTML = '<center><b>' + data.match_id + '</b><br><b>Date: </b>' + data.date + '</center>';
+              document.getElementById("DraftIdLands").innerHTML = "";
+              document.getElementById("DraftIdSpells").innerHTML = "";
+              for (var i = 0; i < data.lands.length; i++){
+                document.getElementById("DraftIdLands").innerHTML += data.lands[i];
+                if (i < data.lands.length-1){
+                  document.getElementById("DraftIdLands").innerHTML += "<br>"
+                };
+              };
+              for (var i = 0; i < data.spells.length; i++){
+                document.getElementById("DraftIdSpells").innerHTML += data.spells[i];
+                if (i < data.spells.length-1){
+                  document.getElementById("DraftIdSpells").innerHTML += "<br>"
+                };
+              };
+              document.getElementById("DraftIdButton").innerHTML = data.possible_draft_ids[0];
+              for (var i = 1; i < data.possible_draft_ids.length; i++){
+                document.getElementById("DraftIdMenu").innerHTML += '<li><a class="dropdown-item" onclick="showAssociatedDraftId(this)">'+data.possible_draft_ids[i]+'</a></li>';
+              };
+            };
+          });
+        });
+      };
+    </script>
+    <script>
       function showP1Arch(item) {document.getElementById("P1ArchButton").innerHTML = item.innerHTML;}
       function showP2Arch(item) {document.getElementById("P2ArchButton").innerHTML = item.innerHTML;}
       function showFormat(item) {
@@ -234,6 +363,7 @@
       function showFormatMulti(item) {document.getElementById("FormatButtonMulti").innerHTML = item.innerHTML;}
       function showLimitedFormatMulti(item) {document.getElementById("LimitedFormatButtonMulti").innerHTML = item.innerHTML;}
       function showMatchTypeMulti(item) {document.getElementById("MatchTypeButtonMulti").innerHTML = item.innerHTML;}
+      function showAssociatedDraftId(item) {document.getElementById("DraftIdButton").innerHTML = item.innerHTML;}
     </script>
 
   </head>
@@ -241,39 +371,39 @@
   <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('views.index') }}">Navbar</a>
+        <a class="navbar-brand" href="{{ url_for('views.index') }}"><b>Navbar</b></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="{{ url_for('views.index') }}">Home</a>
+              <a class="nav-link" aria-current="page" href="{{ url_for('views.index') }}"><b>Home</b></a>
             </li>
             {% if user.is_authenticated %}
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('views.logout') }}">Logout</a>
+              <a class="nav-link" href="{{ url_for('views.logout') }}"><b>Logout</b></a>
             </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Tables
+                <b>Tables</b>
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='matches', page_num=1) }}">Matches</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='games', page_num=1) }}">Games</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='plays', page_num=1) }}">Plays</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='drafts', page_num=1) }}">Drafts</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='picks', page_num=1) }}">Draft Picks</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='matches', page_num=1) }}"><b>Matches</b></a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='games', page_num=1) }}"><b>Games</b></a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='plays', page_num=1) }}"><b>Plays</b></a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='drafts', page_num=1) }}"><b>Drafts</b></a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.table', table_name='picks', page_num=1) }}"><b>Draft Picks</b></a></li>
               </ul>
             </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Data Cleaning
+                <b>Data Cleaning</b>
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#">Best Guess Deck Names</a></li>
-                <li><a class="dropdown-item" href="#">Get Missing Game Winners</a></li>
-                <li><a class="dropdown-item" href="#">Apply Associated Draft_IDs</a></li>
+                <li><a class="dropdown-item" href="#"><b>Best Guess Deck Names</b></a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#GameWinnerModal" onclick="initGetWinner()"><b>Get Missing Game Winners</b></a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#DraftIdModal" onclick="initGetDraftId()"><b>Apply Associated Draft_IDs</b></a></li>
               </ul>
             </li>
             {% else %}
@@ -289,7 +419,102 @@
     </nav>
 
     <br><br>
-    
+  
+    <div class="modal fade" id="GameWinnerModal" tabindex="-1" aria-labelledby="GameWinnerModal" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title fs-5" id="GameWinnerModalLabel">Missing Game_Winners</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="GetWinnerCloseButton"></button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="row text-center" id="GameWinnerModalDate">
+                Date
+              </div>
+              <hr id="GameWinnerHR1">
+              <div class="row" id="EndGameActions">
+                Game Action 1<br>
+                Game Action 2<br>
+                Game Action 3<br>
+                Game Action 4<br>
+                Game Action 5<br>
+                Game Action 6<br>
+                Game Action 7<br>
+                Game Action 8<br>
+                Game Action 9<br>
+                Game Action 10<br>
+                Game Action 11<br>
+                Game Action 12<br>
+                Game Action 13<br>
+                Game Action 14<br>
+                Game Action 15<br>
+              </div>
+              <hr id="GameWinnerHR2">
+              <div class="row text-center" id="GameWinnerMessage">
+                <b>Game_Winner could not be automatically determined. Please choose manually.</b>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <div class="row">
+            <div class="col text-end">
+              <button type="button" class="btn btn-secondary" id="GameWinnerSkipButton" onclick="applyGetWinner('0')">Skip</button>
+            </div>
+            <div class="col-md-auto">
+              <button type="submit" class="btn btn-primary" id="GameWinnerP1Button" onclick="applyGetWinner('P1')">Player 1</button>
+            </div>
+            <div class="col">
+              <button type="submit" class="btn btn-primary" id="GameWinnerP2Button" onclick="applyGetWinner('P2')">Player 2</button>
+            </div>
+          </div><br>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="DraftIdModal" tabindex="-1" aria-labelledby="DraftIdModal" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title fs-5" id="DraftIdModalLabel">Apply Associated Draft_IDs</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="DraftIdCloseButton"></button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="row text-center" id="DraftIdModalDate">
+                Date
+              </div>
+              <hr id="DraftIdHR1">
+              <div class="row">
+                <div class="col" id="DraftIdLands">
+                </div>
+                <div class="col" id="DraftIdSpells">
+                </div>
+              </div>
+              <hr id="DraftIdHR2">
+              <div class="row text-center" id="DraftIdMessage">
+                <b>Draft_ID associated with this Match could not be automatically determined. Please choose manually.</b>
+              </div><br>
+              <div class="row text-center">
+                <div class="dropdown">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="DraftIdButton" name="DraftIdButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    Associated Draft_ID
+                  </button>
+                  <ul class="dropdown-menu" id="DraftIdMenu">
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="DraftIdSkipButton" onclick="applyGetDraftId(true)">Skip</button>
+            <button type="submit" class="btn btn-primary" id="DraftIdApplyButton" onclick="applyGetDraftId(false)">Apply</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
   {% block content %}
   {% endblock %}
 
