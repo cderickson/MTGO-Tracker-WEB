@@ -37,20 +37,10 @@
     {% if (table_name | capitalize) == 'Matches' %}
     <div class="row">
       <div class="col text-end">
-        <form action="/load" method="POST">
-          <button type="submit" class="btn btn-secondary">Load Data</button>
-        </form>
-      </div>
-      <div class="col-md-auto">
-        <form action="/load_drafts" method="POST">
-          <button type="submit" class="btn btn-secondary">Load Drafts</button>
-        </form>
-      </div>
-      <div class="col-md-auto">
         <button disabled id="ReviseButton" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#ReviseModal" data-bs-whatever="@getbootstrap">Revise Record</button>
       </div>
       <div class="col">
-        <button disabled id="ReviseButton" type="button" class="btn btn-secondary">Export</button>
+        <button disabled id="ExportButton" type="button" class="btn btn-secondary">Export</button>
       </div>
     </div>
   </div><br>
@@ -278,6 +268,8 @@
   </div>
   {% endif %}
   
+  {% endif %}
+
   <form action="/revise" method="POST">
     <input type="hidden" name="Page_Num"  id="Page_Num" value="{{ page_num }}">
     <input type="hidden" name="Match_ID"  id="Match_ID" value="NA">
@@ -314,28 +306,20 @@
                 <div class="row">
                   <div class="col text-center">
                     <div class="dropdown">
-                      <button class="btn btn-secondary dropdown-toggle" type="button" id="P1ArchButton" name="P1ArchButton" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="P1ArchButton" name="P1ArchButton" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         P1_Arch
                       </button>
                       <ul class="dropdown-menu" aria-labelledby="P1ArchButton" id="P1ArchMenu">
-                        <li><a class="dropdown-item" onclick="showP1Arch(this)">Aggro</a></li>
-                        <li><a class="dropdown-item" onclick="showP1Arch(this)">Midrange</a></li>
-                        <li><a class="dropdown-item" onclick="showP1Arch(this)">Control</a></li>
-                        <li><a class="dropdown-item" onclick="showP1Arch(this)">Combo</a></li>
                       </ul>
                     </div>
                   </div>
                   <div class="col"><input type="text" class="form-control" id="P1_Subarch" name="P1_Subarch" placeholder="P1_Subarch" value="P1_Subarch"></div>
                   <div class="col text-center">
                     <div class="dropdown">
-                      <button class="btn btn-secondary dropdown-toggle" type="button" id="P2ArchButton" name="P2ArchButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="P2ArchButton" name="P2ArchButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         P2_Arch
                       </button>
                       <ul class="dropdown-menu" aria-labelledby="P2ArchButton" id="P2ArchMenu">
-                        <li><a class="dropdown-item" onclick="showP2Arch(this)">Aggro</a></li>
-                        <li><a class="dropdown-item" onclick="showP2Arch(this)">Midrange</a></li>
-                        <li><a class="dropdown-item" onclick="showP2Arch(this)">Control</a></li>
-                        <li><a class="dropdown-item" onclick="showP2Arch(this)">Combo</a></li>
                       </ul>
                     </div>
                   </div>
@@ -349,8 +333,6 @@
                         Format
                       </button>
                       <ul class="dropdown-menu" aria-labelledby="FormatButton" id="FormatMenu">
-                        <li><a class="dropdown-item" onclick="showFormat(this)">Constructed</a></li>
-                        <li><a class="dropdown-item" onclick="showFormat(this)">Limited</a></li>
                       </ul>
                     </div>
                   </div>
@@ -372,9 +354,6 @@
                         Match_Type
                       </button>
                       <ul class="dropdown-menu" aria-labelledby="MatchTypeButton" id="MatchTypeMenu">
-                        <li><a class="dropdown-item" onclick="showMatchType(this)">League</a></li>
-                        <li><a class="dropdown-item" onclick="showMatchType(this)">Challenge</a></li>
-                        <li><a class="dropdown-item" onclick="showMatchType(this)">Premier</a></li>
                       </ul>
                     </div>
                   </div>
@@ -429,16 +408,12 @@
                   <div class="col-4 text-end" id="P1ArchCol1" style="display:block">
                     <label for="P1ArchButtonMulti" class="form-label"><span class="align-middle"><b>P1_Arch:</b></span></label>
                   </div>
-                  <div class="col-8 text-end" id="P1ArchCol2" style="display:block">
+                  <div class="col-8" id="P1ArchCol2" style="display:block">
                     <div class="dropdown">
-                      <button class="btn btn-secondary dropdown-toggle" type="button" id="P1ArchButtonMulti" name="P1ArchButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        P1_Arch
+                      <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="P1ArchButtonMulti" name="P1ArchButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        NA
                       </button>
-                      <ul class="dropdown-menu" id="P1ArchMenu">
-                        <li><a class="dropdown-item" onclick="showP1ArchMulti(this)">Aggro</a></li>
-                        <li><a class="dropdown-item" onclick="showP1ArchMulti(this)">Midrange</a></li>
-                        <li><a class="dropdown-item" onclick="showP1ArchMulti(this)">Control</a></li>
-                        <li><a class="dropdown-item" onclick="showP1ArchMulti(this)">Combo</a></li>
+                      <ul class="dropdown-menu" id="P1ArchMenuMulti">
                       </ul>
                     </div>
                   </div>
@@ -448,23 +423,19 @@
                   <div class="col-4 text-end" id="P1SubarchCol1" style="display:block">
                     <label for="P1_Subarch" class="form-label"><span class="align-middle"><b>P1_Subarch:</b></span></label>
                   </div>
-                  <div class="col-8 text-end" id="P1SubarchCol2" style="display:block"><input type="text" class="form-control" id="P1_Subarch_Multi" name="P1_Subarch_Multi" placeholder="P1_Subarch" value="P1_Subarch"></div>
+                  <div class="col-8 text-end" id="P1SubarchCol2" style="display:block"><input type="text" class="form-control" id="P1_Subarch_Multi" name="P1_Subarch_Multi" placeholder="P1_Subarch" value="NA"></div>
                 </div><br id=P1DeckBR2 style="display:none">
 
                 <div class="row">
                   <div class="col-4 text-end" id="P2ArchCol1" style="display:none">
                     <label for="P2ArchButtonMulti" class="form-label"><span class="align-middle"><b>P2_Arch:</b></span></label>
                   </div>
-                  <div class="col-8 text-end" id="P2ArchCol2" style="display:none">
+                  <div class="col-8" id="P2ArchCol2" style="display:none">
                     <div class="dropdown">
-                      <button class="btn btn-secondary dropdown-toggle" type="button" id="P2ArchButtonMulti" name="P2ArchButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        P2_Arch
+                      <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="P2ArchButtonMulti" name="P2ArchButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        NA
                       </button>
-                      <ul class="dropdown-menu" id="P2ArchMenu">
-                        <li><a class="dropdown-item" onclick="showP2ArchMulti(this)">Aggro</a></li>
-                        <li><a class="dropdown-item" onclick="showP2ArchMulti(this)">Midrange</a></li>
-                        <li><a class="dropdown-item" onclick="showP2ArchMulti(this)">Control</a></li>
-                        <li><a class="dropdown-item" onclick="showP2ArchMulti(this)">Combo</a></li>
+                      <ul class="dropdown-menu" id="P2ArchMenuMulti">
                       </ul>
                     </div>
                   </div>
@@ -474,23 +445,19 @@
                   <div class="col-4 text-end" id="P2SubarchCol1" style="display:none">
                     <label for="P2_Subarch_Multi" class="form-label"><span class="align-middle"><b>P2_Subarch:</b></span></label>
                   </div>
-                  <div class="col-8 text-end" id="P2SubarchCol2" style="display:none"><input type="text" class="form-control" id="P2_Subarch_Multi" name="P2_Subarch_Multi" placeholder="P2_Subarch" value="P2_Subarch"></div>
+                  <div class="col-8 text-end" id="P2SubarchCol2" style="display:none"><input type="text" class="form-control" id="P2_Subarch_Multi" name="P2_Subarch_Multi" placeholder="P2_Subarch" value="NA"></div>
                 </div><br id=P2DeckBR2 style="display:none">
 
                 <div class="row">
                   <div class="col-4 text-end" id="FormatCol1" style="display:none">
                     <label for="FormatButtonMulti" class="form-label"><span class="align-middle"><b>Format:</b></span></label>
                   </div>
-                  <div class="col-8 text-end" id="FormatCol2" style="display:none">
+                  <div class="col-8" id="FormatCol2" style="display:none">
                     <div class="dropdown">
-                      <button class="btn btn-secondary dropdown-toggle" type="button" id="FormatButtonMulti" name="FormatButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="FormatButtonMulti" name="FormatButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         NA
                       </button>
-                      <ul class="dropdown-menu" id="FormatMenu">
-                        <li><a class="dropdown-item" onclick="showFormatMulti(this)">Aggro</a></li>
-                        <li><a class="dropdown-item" onclick="showFormatMulti(this)">Midrange</a></li>
-                        <li><a class="dropdown-item" onclick="showFormatMulti(this)">Control</a></li>
-                        <li><a class="dropdown-item" onclick="showFormatMulti(this)">Combo</a></li>
+                      <ul class="dropdown-menu" id="FormatMenuMulti">
                       </ul>
                     </div>
                   </div>
@@ -500,16 +467,12 @@
                   <div class="col-4 text-end" id="LimitedFormatCol1" style="display:none">
                     <label for="LimitedFormatButtonMulti" class="form-label"><span class="align-middle"><b>Limited_Format:</b></span></label>
                   </div>
-                  <div class="col-8 text-end" id="LimitedFormatCol2" style="display:none">
+                  <div class="col-8" id="LimitedFormatCol2" style="display:none">
                     <div class="dropdown">
-                      <button class="btn btn-secondary dropdown-toggle" type="button" id="LimitedFormatButtonMulti" name="LimitedFormatButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      <button disabled class="btn btn-secondary dropdown-toggle w-100" type="button" id="LimitedFormatButtonMulti" name="LimitedFormatButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         NA
                       </button>
-                      <ul class="dropdown-menu" id="LimitedFormatMenu">
-                        <li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">Booster Draft</a></li>
-                        <li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">Midrange</a></li>
-                        <li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">Control</a></li>
-                        <li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">Combo</a></li>
+                      <ul class="dropdown-menu" id="LimitedFormatMenuMulti">
                       </ul>
                     </div>
                   </div>
@@ -519,16 +482,12 @@
                   <div class="col-4 text-end" id="MatchTypeCol1" style="display:none">
                     <label for="MatchTypeButtonMulti" class="form-label"><span class="align-middle"><b>Match_Type:</b></span></label>
                   </div>
-                  <div class="col-8 text-end" id="MatchTypeCol2" style="display:none">
+                  <div class="col-8" id="MatchTypeCol2" style="display:none">
                     <div class="dropdown">
-                      <button class="btn btn-secondary dropdown-toggle" type="button" id="MatchTypeButtonMulti" name="MatchTypeButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      <button class="btn btn-secondary dropdown-toggle w-100" type="button" id="MatchTypeButtonMulti" name="MatchTypeButtonMulti" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         NA
                       </button>
-                      <ul class="dropdown-menu" id="MatchTypeMenu">
-                        <li><a class="dropdown-item" onclick="showMatchTypeMulti(this)">Aggro</a></li>
-                        <li><a class="dropdown-item" onclick="showMatchTypeMulti(this)">Midrange</a></li>
-                        <li><a class="dropdown-item" onclick="showMatchTypeMulti(this)">Control</a></li>
-                        <li><a class="dropdown-item" onclick="showMatchTypeMulti(this)">Combo</a></li>
+                      <ul class="dropdown-menu" id="MatchTypeMenuMulti">
                       </ul>
                     </div>
                   </div>
@@ -539,12 +498,52 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary"  onclick="changeHiddenInputsMulti()"">Apply Changes</button>
+            <button type="submit" class="btn btn-primary"  onclick="changeHiddenInputsMulti()">Apply Changes</button>
           </div>
         </div>
       </div>
     </div>
   </form>
-  {% endif %}
+
+
+  <script>
+    let input_options;
+    window.onload = function(){
+      fetch('/input_options').then(function(response){
+        response.json().then(function(data){
+          input_options = data;
+          for (var i = 0; i < data["Archetypes"].length; i++){
+            document.getElementById("P1ArchMenu").innerHTML += '<li><a class="dropdown-item" onclick="showP1Arch(this)">'+data["Archetypes"][i]+'</a></li>';
+            document.getElementById("P2ArchMenu").innerHTML += '<li><a class="dropdown-item" onclick="showP2Arch(this)">'+data["Archetypes"][i]+'</a></li>';
+            document.getElementById("P1ArchMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showP1ArchMulti(this)">'+data["Archetypes"][i]+'</a></li>';
+            document.getElementById("P2ArchMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showP2ArchMulti(this)">'+data["Archetypes"][i]+'</a></li>';
+          };
+          for (var i = 0; i < data["Constructed Formats"].length; i++){
+            document.getElementById("FormatMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showFormatMulti(this)">'+data["Constructed Formats"][i]+'</a></li>';
+            document.getElementById("FormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showFormat(this)">'+data["Constructed Formats"][i]+'</a></li>';
+          };
+          for (var i = 0; i < data["Limited Formats"].length; i++){
+            document.getElementById("FormatMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showFormatMulti(this)">'+data["Limited Formats"][i]+'</a></li>';
+            document.getElementById("FormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showFormat(this)">'+data["Limited Formats"][i]+'</a></li>';
+          };
+          for (var i = 0; i < data["Constructed Match Types"].length; i++){
+            document.getElementById("MatchTypeMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showMatchTypeMulti(this)">'+data["Constructed Match Types"][i]+'</a></li>';
+            document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Constructed Match Types"][i]+'</a></li>';
+          };
+          for (var i = 0; i < data["Booster Draft Match Types"].length; i++){
+            document.getElementById("MatchTypeMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showMatchTypeMulti(this)">'+data["Booster Draft Match Types"][i]+'</a></li>';
+            document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+'</a></li>';
+          };
+          for (var i = 0; i < data["Sealed Match Types"].length; i++){
+            document.getElementById("MatchTypeMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showMatchTypeMulti(this)">'+data["Sealed Match Types"][i]+'</a></li>';
+            document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Sealed Match Types"][i]+'</a></li>';
+          };
+          document.getElementById("FormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showFormat(this)">NA</a></li>';
+          document.getElementById("FormatMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showFormatMulti(this)">NA</a></li>';
+          document.getElementById("MatchTypeMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showMatchTypeMulti(this)">NA</a></li>';
+        });
+      });     
+    };
+  </script>
 
 {% endblock %}
