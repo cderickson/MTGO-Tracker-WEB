@@ -1,6 +1,6 @@
 from flask import render_template, request, Blueprint, flash
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
+from sqlalchemy import func, create_engine
 from flask_login import login_user, login_required, logout_user, current_user
 from datetime import datetime
 from .models import User, Match, Game, Play, Pick, Draft
@@ -12,9 +12,49 @@ import time
 import modo
 import pickle
 import math 
+import pandas as pd
 
 page_size = 25
 
+def get_input_options():
+	in_header = False
+	in_instr = True
+	input_options = {}
+	x = ""
+	y = []
+	with io.open("INPUT_OPTIONS.txt","r",encoding="ansi") as file:
+		initial = file.read().split("\n")
+		for i in initial:
+			if i == "-----------------------------":
+				if in_instr:
+					in_instr = False
+				in_header = not in_header
+				if in_header == False:
+					x = last.split(":")[0].split("# ")[1]
+				elif x != "":
+					input_options[x] = y
+					y = []                        
+			elif (in_header == False) and (i != "") and (in_instr == False):
+				y.append(i)
+			last = i
+	return input_options
+
+def get_multifaced_cards():
+	multifaced_cards = {}
+	with io.open("MULTIFACED_CARDS.txt","r",encoding="ansi") as file:
+		initial = file.read().split("\n")
+		for i in initial:
+			if i.isupper():
+				multifaced_cards[i] = {}
+				last = i
+			if ' // ' in i:
+				multifaced_cards[last][i.split(' // ')[0]] = i.split(' // ')[1]
+	return multifaced_cards
+
+input_options = get_input_options()
+multifaced = get_multifaced_cards()
+
+print(input_options)
 views = Blueprint('views', __name__)
 
 @views.route('/')
@@ -471,37 +511,45 @@ def game_winner_init():
 @views.route('/draft_id_init')
 def draft_id_init():
 	# Add limited match conditions here.
-	first_match = Match.query.filter_by(user_id=current_user.id, limited_format='Booster Draft', draft_id='NA', p1=current_user.username).order_by(Match.match_id).first()
-	if first_match is None:
-		print("1")
-		return {'match_id':'NA'}
+	limited_matches = Match.query.filter_by(user_id=current_user.id, draft_id='NA', p1=current_user.username)
+	limited_matches = limited_matches.filter( (Match.format == 'Cube') ).order_by(Match.match_id)
+	first_match = limited_matches.first()
+	while True:
+		print(first_match)
+		if first_match is None:
+			print("1")
+			return {'match_id':'NA'}
 
-	lands = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=first_match.match_id, casting_player=first_match.p1, action='Land Drop').order_by(Play.primary_card)]
-	nb_lands = [i for i in lands if (i not in ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'])]
-	spells = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=first_match.match_id, casting_player=first_match.p1, action='Casts').order_by(Play.primary_card)]
+		lands = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=first_match.match_id, casting_player=first_match.p1, action='Land Drop').order_by(Play.primary_card)]
+		nb_lands = [i for i in lands if (i not in ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'])]
+		spells = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=first_match.match_id, casting_player=first_match.p1, action='Casts').order_by(Play.primary_card)]
 
-	#fix this later
-	spells = [i for i in spells if (i not in ['Petty Theft','Stomp'])]
+		spells = list(modo.clean_card_set(set(spells), get_multifaced_cards()))
 
-	cards_dict = {'lands':[*set(lands)], 'spells':[*set(spells)]}
-	draft_ids_dict = {'possible_draft_ids':[]}
+		cards_dict = {'lands':[*set(lands)], 'spells':[*set(spells)]}
+		draft_ids_dict = {'possible_draft_ids':[]}
 
-	for draft in Draft.query.filter_by(user_id=current_user.id).filter(Draft.date < first_match.date).all():
-		picks = [pick.card for pick in Pick.query.filter_by(user_id=current_user.id, draft_id=draft.draft_id)]
-		if all(i in picks for i in (nb_lands + spells)):
-			draft_ids_dict['possible_draft_ids'].append(draft.draft_id)
+		for draft in Draft.query.filter_by(user_id=current_user.id).filter(Draft.date < first_match.date).all():
+			picks = [pick.card for pick in Pick.query.filter_by(user_id=current_user.id, draft_id=draft.draft_id)]
+			if all(i in picks for i in (nb_lands + spells)):
+				draft_ids_dict['possible_draft_ids'].append(draft.draft_id)
 
-	if len(draft_ids_dict['possible_draft_ids']) == 0:
-		print("2")
-		return {'match_id':'NA'}
+		if len(draft_ids_dict['possible_draft_ids']) > 0:
+			break
+			#return {'match_id':'NA'}
+
+		limited_matches = limited_matches.filter(Match.match_id > first_match.match_id).order_by(Match.match_id)
+		first_match = limited_matches.first()
 
 	return first_match.as_dict() | cards_dict | draft_ids_dict
 
 @views.route('/associated_draft_id/<match_id>/<draft_id>')
 def apply_draft_id(match_id, draft_id):
 	# Add limited match conditions here.
-	next_match = Match.query.filter_by(user_id=current_user.id, limited_format='Booster Draft', draft_id='NA', p1=current_user.username)
-	next_match = next_match.filter(Match.match_id > match_id).order_by(Match.match_id).first()
+	limited_matches = Match.query.filter_by(user_id=current_user.id, draft_id='NA', p1=current_user.username)
+	limited_matches = limited_matches.filter( (Match.format == 'Cube') )
+	limited_matches = limited_matches.filter(Match.match_id > match_id).order_by(Match.match_id)
+	next_match = limited_matches.first()
 
 	if draft_id != '0':
 		matches = Match.query.filter_by(user_id=current_user.id, match_id=match_id).all()
@@ -522,28 +570,44 @@ def apply_draft_id(match_id, draft_id):
 		draft.match_losses = match_losses
 		db.session.commit()
 
-	if next_match is None:
-		return {'match_id':'NA'}
+	while True:
+		if next_match is None:
+			return {'match_id':'NA'}
 
-	lands = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=next_match.match_id, casting_player=next_match.p1, action='Land Drop').order_by(Play.primary_card)]
-	nb_lands = [i for i in lands if (i not in ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'])]
-	spells = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=next_match.match_id, casting_player=next_match.p1, action='Casts').order_by(Play.primary_card)]
+		lands = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=next_match.match_id, casting_player=next_match.p1, action='Land Drop').order_by(Play.primary_card)]
+		nb_lands = [i for i in lands if (i not in ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'])]
+		spells = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=next_match.match_id, casting_player=next_match.p1, action='Casts').order_by(Play.primary_card)]
 
-	#fix this later
-	spells = [i for i in spells if (i not in ['Petty Theft', 'Stomp'])]
+		spells = list(modo.clean_card_set(set(spells), get_multifaced_cards()))
 
-	cards_dict = {'lands':[*set(lands)], 'spells':[*set(spells)]}
-	draft_ids_dict = {'possible_draft_ids':[]}
+		cards_dict = {'lands':[*set(lands)], 'spells':[*set(spells)]}
+		draft_ids_dict = {'possible_draft_ids':[]}
 
-	for draft in Draft.query.filter_by(user_id=current_user.id).filter(Draft.date < next_match.date).all():
-		picks = [pick.card for pick in Pick.query.filter_by(user_id=current_user.id, draft_id=draft.draft_id)]
-		if all(i in picks for i in (nb_lands + spells)):
-			draft_ids_dict['possible_draft_ids'].append(draft.draft_id)
+		for draft in Draft.query.filter_by(user_id=current_user.id).filter(Draft.date < next_match.date).all():
+			picks = [pick.card for pick in Pick.query.filter_by(user_id=current_user.id, draft_id=draft.draft_id)]
+			if all(i in picks for i in (nb_lands + spells)):
+				draft_ids_dict['possible_draft_ids'].append(draft.draft_id)
 
-	if len(draft_ids_dict['possible_draft_ids']) == 0:
-		return {'match_id':'NA'}
+		if len(draft_ids_dict['possible_draft_ids']) > 0:
+			break
+		
+		limited_matches = limited_matches.filter(Match.match_id > next_match.match_id).order_by(Match.match_id)
+		next_match = limited_matches.first()
 
 	return next_match.as_dict() | cards_dict | draft_ids_dict
+
+@views.route('/input_options')
+def input_options():
+	return get_input_options()
+
+@views.route('/export')
+def export():
+	df_list = [i.as_dict() for i in Match.query.filter_by(user_id=current_user.id).all()]
+
+	df = pd.DataFrame(df_list)
+
+	print(df)
+	return "lol"
 
 @views.route('/test2/<row>')
 def test2(row):
