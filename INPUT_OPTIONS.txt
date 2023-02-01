@@ -1,0 +1,152 @@
+- This file controls the dropdown menu options available in revision windows.
+- Add or delete options under their respective header.
+- Each option MUST be on it's own line.
+- Do not alter headers in this file.
+-----------------------------
+# Matches.Match_Type Options
+# Constructed Match Types:
+-----------------------------
+League
+Preliminary
+Challenge
+Premier Constructed
+2-Man
+Practice
+Open Play BO1
+
+-----------------------------
+# Matches.Match_Type Options
+# Booster Draft Match Types:
+-----------------------------
+Draft League
+Swiss Draft
+Elimination Draft
+
+-----------------------------
+# Matches.Match_Type Options
+# Sealed Match Types:
+-----------------------------
+Friendly Sealed League
+Competitive Sealed League
+Premier Sealed
+
+-----------------------------
+# Matches.P1/P2_Arch Options
+# Archetypes:
+-----------------------------
+Aggro
+Midrange
+Control
+Combo
+Prison
+Tempo
+Ramp
+Rogue
+NA
+
+-----------------------------
+# Matches.Format Options
+# Constructed Formats:
+-----------------------------
+Vintage
+Legacy
+Modern
+Standard
+Pioneer
+Pauper
+Other Constructed
+
+-----------------------------
+# Matches.Format Options
+# Limited Formats:
+-----------------------------
+Booster Draft
+Sealed Deck
+Cube
+
+-----------------------------
+# Matches.Limited_Format Options
+# Cube Formats:
+-----------------------------
+Cube-Other
+Vintage Cube
+Legacy Cube
+Modern Cube
+
+-----------------------------
+# Matches.Limited_Format Options
+# Booster Draft Formats:
+-----------------------------
+NA
+NEO
+DBL
+VOW
+MID
+AFR
+MH2
+STX
+TSR
+KHM
+ZNR
+2XM
+M21
+IKO
+THB
+ELD
+M20
+MH1
+WAR
+RNA
+UMA
+GRN
+M19
+DOM
+A25
+RIX
+IMA
+XLN
+HOU
+AKH
+MM3
+AER
+VMA
+Other Draft
+
+-----------------------------
+# Matches.Limited_Format Options
+# Sealed Formats:
+-----------------------------
+NA
+NEO
+VOW
+MID
+AFR
+MH2
+STX
+TSR
+KHM
+ZNR
+2XM
+M21
+IKO
+THB
+ELD
+M20
+MH1
+WAR
+RNA
+UMA
+GRN
+M19
+DOM
+A25
+RIX
+IMA
+XLN
+HOU
+AKH
+MM3
+AER
+Other Sealed
+
+-----------------------------
