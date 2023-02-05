@@ -90,7 +90,7 @@
                     document.getElementById('LimitedFormatButton').disabled = true;
                     document.getElementById('MatchTypeMenu').innerHTML = "";
                     for (var i = 0; i < input_options["Constructed Match Types"].length; i++){
-                      document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Constructed Match Types"][i]+'</a></li>';
+                      document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Constructed Match Types"][i]+' </a></li>';
                     };
                   };
                   if (data.format === "Booster Draft"){
@@ -98,11 +98,11 @@
                     document.getElementById('LimitedFormatButton').disabled = false;
                     document.getElementById('LimitedFormatMenu').innerHTML = "";
                     for (var i = 0; i < input_options["Booster Draft Formats"].length; i++){
-                      document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Formats"][i]+'</a></li>';
+                      document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Formats"][i]+' </a></li>';
                     };
                     document.getElementById('MatchTypeMenu').innerHTML = "";
                     for (var i = 0; i < input_options["Booster Draft Match Types"].length; i++){
-                      document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+'</a></li>';
+                      document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+' </a></li>';
                     };
                   };
                   if (data.format === "Sealed Deck"){
@@ -110,11 +110,11 @@
                     document.getElementById('LimitedFormatButton').disabled = false;
                     document.getElementById('LimitedFormatMenu').innerHTML = "";
                     for (var i = 0; i < input_options["Sealed Formats"].length; i++){
-                      document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Sealed Formats"][i]+'</a></li>';
+                      document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Sealed Formats"][i]+' </a></li>';
                     };
                     document.getElementById('MatchTypeMenu').innerHTML = "";
                     for (var i = 0; i < input_options["Sealed Match Types"].length; i++){
-                      document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Sealed Match Types"][i]+'</a></li>';
+                      document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Sealed Match Types"][i]+' </a></li>';
                     };
                   };
                   if (data.format === "Cube"){
@@ -122,14 +122,14 @@
                     document.getElementById('LimitedFormatButton').disabled = false;
                     document.getElementById('LimitedFormatMenu').innerHTML = "";
                     for (var i = 0; i < input_options["Cube Formats"].length; i++){
-                      document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Cube Formats"][i]+'</a></li>';
+                      document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Cube Formats"][i]+' </a></li>';
                     };
                     document.getElementById('MatchTypeMenu').innerHTML = "";
                     for (var i = 0; i < input_options["Booster Draft Match Types"].length; i++){
-                      document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+'</a></li>';
+                      document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+' </a></li>';
                     };
                   };
-                  document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">NA</a></li>';
+                  document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">NA </a></li>';
                 } else{
                   document.getElementById('FormatButton').innerHTML = "Format";
                 };
@@ -235,7 +235,7 @@
               document.getElementById("DraftIdButton").innerHTML = data.possible_draft_ids[0];
               document.getElementById("DraftIdMenu").innerHTML = ""
               for (var i = 0; i < data.possible_draft_ids.length; i++){
-                document.getElementById("DraftIdMenu").innerHTML += '<li><a class="dropdown-item" onclick="showAssociatedDraftId(this)">'+data.possible_draft_ids[i]+'</a></li>';
+                document.getElementById("DraftIdMenu").innerHTML += '<li><a class="dropdown-item" onclick="showAssociatedDraftId(this)">'+data.possible_draft_ids[i]+' </a></li>';
               };
             };
           });
@@ -275,7 +275,7 @@
               document.getElementById("DraftIdButton").innerHTML = data.possible_draft_ids[0];
               document.getElementById("DraftIdMenu").innerHTML = ""
               for (var i = 0; i < data.possible_draft_ids.length; i++){
-                document.getElementById("DraftIdMenu").innerHTML += '<li><a class="dropdown-item" onclick="showAssociatedDraftId(this)">'+data.possible_draft_ids[i]+'</a></li>';
+                document.getElementById("DraftIdMenu").innerHTML += '<li><a class="dropdown-item" onclick="showAssociatedDraftId(this)">'+data.possible_draft_ids[i]+' </a></li>';
               };
             };
           });
@@ -303,11 +303,11 @@
             }
             document.getElementById('LimitedFormatMenu').innerHTML = "";
             for (var i = 0; i < input_options["Booster Draft Formats"].length; i++){
-              document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showLimitedFormat(this)">'+input_options["Booster Draft Formats"][i]+'</a></li>';
+              document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showLimitedFormat(this)">'+input_options["Booster Draft Formats"][i]+' </a></li>';
             };
             document.getElementById('MatchTypeMenu').innerHTML = "";
             for (var i = 0; i < input_options["Booster Draft Match Types"].length; i++){
-              document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+'</a></li>';
+              document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+' </a></li>';
             };
           } else if (item.innerHTML === "Sealed Deck"){
             if (!input_options["Sealed Formats"].includes(document.getElementById('LimitedFormatButton').innerHTML)){
@@ -318,11 +318,11 @@
             }
             document.getElementById('LimitedFormatMenu').innerHTML = "";
             for (var i = 0; i < input_options["Sealed Formats"].length; i++){
-              document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showLimitedFormat(this)">'+input_options["Sealed Formats"][i]+'</a></li>';
+              document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showLimitedFormat(this)">'+input_options["Sealed Formats"][i]+' </a></li>';
             };
             document.getElementById('MatchTypeMenu').innerHTML = "";
             for (var i = 0; i < input_options["Sealed Match Types"].length; i++){
-              document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Sealed Match Types"][i]+'</a></li>';
+              document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Sealed Match Types"][i]+' </a></li>';
             };
           } else if (item.innerHTML === "Cube"){
             if (!input_options["Cube Formats"].includes(document.getElementById('LimitedFormatButton').innerHTML)){
@@ -333,11 +333,11 @@
             }
             document.getElementById('LimitedFormatMenu').innerHTML = "";
             for (var i = 0; i < input_options["Cube Formats"].length; i++){
-              document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showLimitedFormat(this)">'+input_options["Cube Formats"][i]+'</a></li>';
+              document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showLimitedFormat(this)">'+input_options["Cube Formats"][i]+' </a></li>';
             };
             document.getElementById('MatchTypeMenu').innerHTML = "";
             for (var i = 0; i < input_options["Booster Draft Match Types"].length; i++){
-              document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+'</a></li>';
+              document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+' </a></li>';
             };
           };
         } else if (input_options["Constructed Formats"].includes(item.innerHTML)){
@@ -352,7 +352,7 @@
             }
           document.getElementById('MatchTypeMenu').innerHTML = "";
           for (var i = 0; i < input_options["Constructed Match Types"].length; i++){
-            document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Constructed Match Types"][i]+'</a></li>';
+            document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Constructed Match Types"][i]+' </a></li>';
           };
         } else if (item.innerHTML === "NA"){
           document.getElementById("P1ArchButton").disabled = false;
@@ -363,16 +363,16 @@
           document.getElementById('LimitedFormatButton').innerHTML = "Limited_Format";
           document.getElementById('MatchTypeMenu').innerHTML = "";
           for (var i = 0; i < input_options["Constructed Match Types"].length; i++){
-            document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Constructed Match Types"][i]+'</a></li>';
+            document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Constructed Match Types"][i]+' </a></li>';
           };
           for (var i = 0; i < input_options["Booster Draft Match Types"].length; i++){
-            document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+'</a></li>';
+            document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+' </a></li>';
           };
           for (var i = 0; i < input_options["Sealed Match Types"].length; i++){
-            document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Sealed Match Types"][i]+'</a></li>';
+            document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Sealed Match Types"][i]+' </a></li>';
           };
         };
-        document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">NA</a></li>';
+        document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">NA </a></li>';
         console.log(item.innerHTML)}
       function showLimitedFormat(item) {document.getElementById("LimitedFormatButton").innerHTML = item.innerHTML;}
       function showMatchType(item) {document.getElementById("MatchTypeButton").innerHTML = item.innerHTML;}
@@ -527,17 +527,17 @@
           if (item.innerHTML === "Booster Draft"){
             document.getElementById('LimitedFormatMenuMulti').innerHTML = "";
             for (var i = 0; i < input_options["Booster Draft Formats"].length; i++){
-              document.getElementById("LimitedFormatMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">'+input_options["Booster Draft Formats"][i]+'</a></li>';
+              document.getElementById("LimitedFormatMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">'+input_options["Booster Draft Formats"][i]+' </a></li>';
             };
           } else if (item.innerHTML === "Sealed Deck"){
             document.getElementById('LimitedFormatMenuMulti').innerHTML = "";
             for (var i = 0; i < input_options["Sealed Formats"].length; i++){
-              document.getElementById("LimitedFormatMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">'+input_options["Sealed Formats"][i]+'</a></li>';
+              document.getElementById("LimitedFormatMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">'+input_options["Sealed Formats"][i]+' </a></li>';
             };
           } else if (item.innerHTML === "Cube"){
             document.getElementById('LimitedFormatMenuMulti').innerHTML = "";
             for (var i = 0; i < input_options["Cube Formats"].length; i++){
-              document.getElementById("LimitedFormatMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">'+input_options["Cube Formats"][i]+'</a></li>';
+              document.getElementById("LimitedFormatMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showLimitedFormatMulti(this)">'+input_options["Cube Formats"][i]+' </a></li>';
             };
           }
         };
@@ -545,6 +545,36 @@
       function showLimitedFormatMulti(item) {document.getElementById("LimitedFormatButtonMulti").innerHTML = item.innerHTML;}
       function showMatchTypeMulti(item) {document.getElementById("MatchTypeButtonMulti").innerHTML = item.innerHTML;}
       function showAssociatedDraftId(item) {document.getElementById("DraftIdButton").innerHTML = item.innerHTML;}
+      function showBestGuess(item) {
+        document.getElementById("BestGuessButton").innerHTML = item.innerHTML;
+        document.getElementById("BG_Match_Set").value = document.getElementById("BestGuessButton").innerHTML.trim();
+      }
+      function bestGuessHidden(label) {document.getElementById("BG_Replace").value = label;}
+      function bestGuess(overwrite){
+        bg_type = document.getElementById("BestGuessButton").innerHTML.trim()
+        if (overwrite){
+          url = "/best_guess/overwrite/"
+        } else{
+          url = "/best_guess/unknown/"
+        };
+        if (bg_type === "All Matches"){
+          url += "all"
+        } else if (bg_type === "Constructed Only"){
+          url += "con"
+        } else if (bg_type === "Limited Only"){
+          console.log(bg_type)
+          url += "lim"
+        };
+        fetch(url).then(function(response){
+          response.json().then(function(data){
+            if (data.message_type === "success"){
+              console.log(data.message)
+            } else{
+              console.log("bad")
+            };
+          });
+        });      
+      };
     </script>
 
   </head>
@@ -582,7 +612,7 @@
                 <b>Data Cleaning</b>
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#"><b>Best Guess Deck Names</b></a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#BestGuessModal" onclick=""><b>Best Guess Deck Names</b></a></li>
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#GameWinnerModal" onclick="initGetWinner()"><b>Get Missing Game Winners</b></a></li>
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#DraftIdModal" onclick="initGetDraftId()"><b>Apply Associated Draft_IDs</b></a></li>
               </ul>
@@ -617,7 +647,27 @@
     </nav>
 
     <br><br>
-  
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container-fluid">
+        {% for category, message in messages %}
+          {% if category == 'error' %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% else %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endif %}
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
     <div class="modal fade" id="GameWinnerModal" tabindex="-1" aria-labelledby="GameWinnerModal" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -712,6 +762,53 @@
       </div>
     </div>
 
+    <form action="/best_guess" method="POST">
+      <input type="hidden" name="BG_Match_Set" id="BG_Match_Set" value="All Matches">
+      <input type="hidden" name="BG_Replace" id="BG_Replace" value="NA">
+      <div class="modal fade" id="BestGuessModal" tabindex="-1" aria-labelledby="BestGuessModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2 class="modal-title fs-5" id="BestGuessModalLabel">Best Guess Deck Names</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="BestGuessCloseButton"></button>
+            </div>
+            <div class="modal-body">
+              <div class="container-fluid">
+                <div class="row" id="BestGuessMessage">
+                  <b>This will revise deck names according to the following:</b><br><br>
+                  <b>Constructed:</b>
+                  <p class="px-5">Compare cards played during a match to find the name of a similar decklist.</p>
+                  <b>Limited:</b>
+                  <p class="px-5">Look at basic lands played during a match to find the color combination played.</p>
+                  <b>NOTE: 'Overwrite All' will overwrite manually input deck name information. This is not reversible.</b>
+                </div><br>
+                <div class="row text-center">
+                  <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="BestGuessButton" name="BestGuessButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      All Matches
+                    </button>
+                    <ul class="dropdown-menu" id="BestGuessMenu">
+                      <li><a class="dropdown-item" onclick="showBestGuess(this)">All Matches </a></li>
+                      <li><a class="dropdown-item" onclick="showBestGuess(this)">Constructed Only </a></li>
+                      <li><a class="dropdown-item" onclick="showBestGuess(this)">Limited Only </a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col text-end">
+                <button type="submit" class="btn btn-primary" id="BestGuessOWButton" onclick="bestGuessHidden('Overwrite All')">Overwrite All</button>
+              </div>
+              <div class="col">
+                <button type="submit" class="btn btn-primary" id="BestGuessNAButton" onclick="bestGuessHidden('Replace NA/Unknown')">Replace NA/Unknown</button>
+              </div>
+            </div><br>
+          </div>
+        </div>
+      </div>
+    </form>
 
   {% block content %}
   {% endblock %}
