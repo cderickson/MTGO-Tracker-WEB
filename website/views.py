@@ -1,4 +1,4 @@
-from flask import render_template, request, Blueprint, flash
+from flask import render_template, request, Blueprint, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, create_engine
 from flask_login import login_user, login_required, logout_user, current_user
@@ -38,7 +38,6 @@ def get_input_options():
 				y.append(i)
 			last = i
 	return input_options
-
 def get_multifaced_cards():
 	multifaced_cards = {}
 	with io.open("MULTIFACED_CARDS.txt","r",encoding="ansi") as file:
@@ -50,11 +49,17 @@ def get_multifaced_cards():
 			if ' // ' in i:
 				multifaced_cards[last][i.split(' // ')[0]] = i.split(' // ')[1]
 	return multifaced_cards
+def get_all_decks():
+	for file in os.listdir(os.getcwd()):
+		if file.startswith('ALL_DECKS'):
+			return pickle.load(open(file,'rb'))
 
-input_options = get_input_options()
+options = get_input_options()
 multifaced = get_multifaced_cards()
+all_decks = get_all_decks()
 
-print(input_options)
+print(options)
+
 views = Blueprint('views', __name__)
 
 @views.route('/')
@@ -105,7 +110,7 @@ def form():
 		db.session.commit()
 		success_message = 'New user created.'
 		login_user(new_user, remember=True)
-		return render_template('index.html', user=current_user, success_message=success_message)
+		return render_template('index.html', user=current_user)
 
 	return render_template('form.html', user=current_user, inputs=inputs)
 
@@ -191,10 +196,11 @@ def load_drafts():
 			#PARSED_DRAFT_DICT[i] = parsed_data[2]
 
 	table = Draft.query.filter_by(user_id=current_user.id).order_by(Draft.date).limit(25).all()
-	return render_template('test.html', user=current_user, table_name='drafts', table=table, success_message=f'Uploaded Drafts, Picks.')
+	return render_template('test.html', user=current_user, table_name='drafts', table=table)
 
 @views.route('/load', methods=['POST'])
 def load():
+	root_folder = os.getcwd()
 	new_data = [[],[],[],{}]
 	for (root,dirs,files) in os.walk('C:\\Users\\chris\\Documents\\GitHub\\MTGO-Tracker\\gamelogs'):
 		for i in files:
@@ -304,8 +310,9 @@ def load():
 				# 	TIMEOUT[parsed_data[0][0]] = parsed_data[4][1]
 		new_data_inverted = modo.invert_join(new_data)
 	
+	os.chdir(root_folder)
 	table = Match.query.filter_by(user_id=current_user.id).order_by(Match.date).limit(25).all()
-	return render_template('test.html', user=current_user, table_name='matches', table=table, success_message='Uploaded Data.')
+	return render_template('test.html', user=current_user, table_name='matches', table=table)
 
 @views.route('/table/<table_name>/<page_num>')
 def table(table_name, page_num):
@@ -392,9 +399,9 @@ def revise():
 
 	try:
 		db.session.commit()
-		return render_template('test.html', user=current_user, table_name="matches", table=table, page_num=page_num, pages=pages, success_message="Record Updated.")
+		return render_template('test.html', user=current_user, table_name="matches", table=table, page_num=page_num, pages=pages)
 	except:
-		return render_template('test.html', user=current_user, table_name="matches", table=table, page_num=page_num, pages=pages, error_message="Error Updating Record.")
+		return render_template('test.html', user=current_user, table_name="matches", table=table, page_num=page_num, pages=pages)
 
 @views.route('/revise_multi', methods=['POST'])
 def revise_multi():
@@ -443,9 +450,9 @@ def revise_multi():
 
 	try:
 		db.session.commit()
-		return render_template('test.html', user=current_user, table_name="matches", table=table, page_num=page_num, pages=pages, success_message="Record Updated.")
+		return render_template('test.html', user=current_user, table_name="matches", table=table, page_num=page_num, pages=pages)
 	except:
-		return render_template('test.html', user=current_user, table_name="matches", table=table, page_num=page_num, pages=pages, error_message="Error Updating Record.")
+		return render_template('test.html', user=current_user, table_name="matches", table=table, page_num=page_num, pages=pages)
 
 @views.route('/values/<match_id>')
 def values(match_id):
@@ -510,9 +517,8 @@ def game_winner_init():
 
 @views.route('/draft_id_init')
 def draft_id_init():
-	# Add limited match conditions here.
 	limited_matches = Match.query.filter_by(user_id=current_user.id, draft_id='NA', p1=current_user.username)
-	limited_matches = limited_matches.filter( (Match.format == 'Cube') ).order_by(Match.match_id)
+	limited_matches = limited_matches.filter( Match.format.in_(options['Limited Formats']) ).order_by(Match.match_id)
 	first_match = limited_matches.first()
 	while True:
 		print(first_match)
@@ -520,9 +526,15 @@ def draft_id_init():
 			print("1")
 			return {'match_id':'NA'}
 
-		lands = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=first_match.match_id, casting_player=first_match.p1, action='Land Drop').order_by(Play.primary_card)]
+		lands = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, 
+																	match_id=first_match.match_id, 
+																	casting_player=first_match.p1, 
+																	action='Land Drop').order_by(Play.primary_card)]
 		nb_lands = [i for i in lands if (i not in ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'])]
-		spells = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=first_match.match_id, casting_player=first_match.p1, action='Casts').order_by(Play.primary_card)]
+		spells = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, 
+																	 match_id=first_match.match_id, 
+																	 casting_player=first_match.p1, 
+																	 action='Casts').order_by(Play.primary_card)]
 
 		spells = list(modo.clean_card_set(set(spells), get_multifaced_cards()))
 
@@ -547,7 +559,7 @@ def draft_id_init():
 def apply_draft_id(match_id, draft_id):
 	# Add limited match conditions here.
 	limited_matches = Match.query.filter_by(user_id=current_user.id, draft_id='NA', p1=current_user.username)
-	limited_matches = limited_matches.filter( (Match.format == 'Cube') )
+	limited_matches = limited_matches.filter( Match.format.in_(options['Limited Formats']) )
 	limited_matches = limited_matches.filter(Match.match_id > match_id).order_by(Match.match_id)
 	next_match = limited_matches.first()
 
@@ -574,9 +586,15 @@ def apply_draft_id(match_id, draft_id):
 		if next_match is None:
 			return {'match_id':'NA'}
 
-		lands = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=next_match.match_id, casting_player=next_match.p1, action='Land Drop').order_by(Play.primary_card)]
+		lands = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, 
+																	match_id=next_match.match_id, 
+																	casting_player=next_match.p1, 
+																	action='Land Drop').order_by(Play.primary_card)]
 		nb_lands = [i for i in lands if (i not in ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest'])]
-		spells = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, match_id=next_match.match_id, casting_player=next_match.p1, action='Casts').order_by(Play.primary_card)]
+		spells = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, 
+																	 match_id=next_match.match_id, 
+																	 casting_player=next_match.p1, 
+																	 action='Casts').order_by(Play.primary_card)]
 
 		spells = list(modo.clean_card_set(set(spells), get_multifaced_cards()))
 
@@ -609,6 +627,86 @@ def export():
 	print(df)
 	return "lol"
 
-@views.route('/test2/<row>')
-def test2(row):
-	return render_template('index.html', user=current_user, success_message=row)
+@views.route('/best_guess', methods=['POST'])
+def best_guess():
+	bg_type = request.form.get('BG_Match_Set').strip()
+	replace_type = request.form.get('BG_Replace').strip()
+	con_count = 0
+	lim_count = 0
+	all_matches = Match.query.filter_by(user_id=current_user.id)
+	
+	if replace_type == 'Overwrite All':
+		if (bg_type == 'Limited Only') or (bg_type == 'All Matches'):
+			matches = all_matches.filter( Match.format.in_(options['Limited Formats']) )
+			for match in matches:
+				cards1 = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, 
+																			 match_id=match.match_id, 
+																			 casting_player=match.p1).filter( Play.action.in_(['Land Drop', 'Casts']) )]
+				cards2 = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, 
+																			 match_id=match.match_id, 
+																			 casting_player=match.p2).filter( Play.action.in_(['Land Drop', 'Casts']) )]
+				match.p1_subarch = modo.get_limited_subarch(cards1)
+				match.p2_subarch = modo.get_limited_subarch(cards2)
+				match.p1_arch = 'Limited'
+				match.p2_arch = 'Limited'
+				db.session.commit()
+				lim_count += 1
+		if (bg_type == 'Constructed Only') or (bg_type == 'All Matches'):
+			matches = all_matches.filter( Match.format.in_(options['Constructed Formats']) )
+			for match in matches:
+				yyyy_mm = match.date[0:4] + "-" + match.date[5:7]
+				cards1 = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, 
+																			 match_id=match.match_id, 
+																			 casting_player=match.p1).filter( Play.action.in_(['Land Drop', 'Casts']) )]
+				cards2 = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, 
+																			 match_id=match.match_id, 
+																			 casting_player=match.p2).filter( Play.action.in_(['Land Drop', 'Casts']) )]
+				p1_data = modo.closest_list(set(cards1),all_decks,yyyy_mm)
+				p2_data = modo.closest_list(set(cards2),all_decks,yyyy_mm)
+				match.p1_subarch = p1_data[0]
+				match.p2_subarch = p2_data[0]
+				db.session.commit()
+				con_count += 1
+
+	if replace_type == 'Replace NA/Unknown':
+		all_matches = all_matches.filter( (Match.p1_subarch.in_(['Unknown', 'NA'])) | (Match.p2_subarch.in_(['Unknown', 'NA'])) )
+		if (bg_type == 'Limited Only') or (bg_type == 'All Matches'):
+			matches = all_matches.filter( Match.format.in_(options['Limited Formats']) )
+			for match in matches:
+				if match.p1_subarch in ['Unknown', 'NA']:
+					cards1 = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, 
+																				 match_id=match.match_id, 
+																				 casting_player=match.p1).filter( Play.action.in_(['Land Drop', 'Casts']) )]
+					match.p1_subarch = modo.get_limited_subarch(cards1)
+					match.p1_arch = 'Limited'
+					lim_count += 1
+				if match.p2_subarch in ['Unknown', 'NA']:
+					cards2 = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, 
+																				 match_id=match.match_id, 
+																				 casting_player=match.p2).filter( Play.action.in_(['Land Drop', 'Casts']) )]
+					match.p2_subarch = modo.get_limited_subarch(cards2)
+					match.p2_arch = 'Limited'
+					lim_count += 1
+				db.session.commit()
+		if (bg_type == 'Constructed Only') or (bg_type == 'All Matches'):
+			matches = all_matches.filter( Match.format.in_(options['Constructed Formats']) )
+			for match in matches:
+				yyyy_mm = match.date[0:4] + "-" + match.date[5:7]
+				if match.p1_subarch in ['Unknown', 'NA']:
+					cards1 = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, 
+																				 match_id=match.match_id, 
+																				 casting_player=match.p1).filter( Play.action.in_(['Land Drop', 'Casts']) )]
+					p1_data = modo.closest_list(set(cards1),all_decks,yyyy_mm)
+					match.p1_subarch = p1_data[0]
+					con_count += 1
+				if match.p2_subarch in ['Unknown', 'NA']:
+					cards2 = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, 
+																				 match_id=match.match_id, 
+																				 casting_player=match.p2).filter( Play.action.in_(['Land Drop', 'Casts']) )]
+					p2_data = modo.closest_list(set(cards2),all_decks,yyyy_mm)
+					match.p2_subarch = p2_data[0]
+					con_count += 1
+				db.session.commit()
+
+	flash(f'{con_count} constructed decks revised, {lim_count} limited decks revised.', category='success')
+	return redirect("/table/matches/1")
