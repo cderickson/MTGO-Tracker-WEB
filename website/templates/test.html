@@ -18,23 +18,9 @@
   </style>
 
   <div class="container-fluid">
-
-    {% if error_message %}
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      {{ error_message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endif %}
-    {% if success_message %}
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-      {{ success_message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endif %}
-
     <h1><center>{{ table_name | capitalize }} Table</center></h1><br>
 
-    {% if (table_name | capitalize) == 'Matches' %}
+  {% if (table_name | capitalize) == 'Matches' %}
     <div class="row">
       <div class="col text-end">
         <button disabled id="ReviseButton" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#ReviseModal" data-bs-whatever="@getbootstrap">Revise Record</button>
@@ -43,8 +29,9 @@
         <button disabled id="ExportButton" type="button" class="btn btn-secondary">Export</button>
       </div>
     </div>
-  </div><br>
   {% endif %}
+  </div><br>
+
 
   <div class="container-fluid">
     <div class="row justify-content-center">
