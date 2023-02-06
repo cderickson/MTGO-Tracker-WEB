@@ -156,7 +156,6 @@
         fetch('/game_winner_init').then(function(response){
           response.json().then(function(data){
             if (data.match_id === "NA"){
-              //console.log(data)
               document.getElementById("EndGameActions").style.display = "none";
               document.getElementById("GameWinnerModalDate").style.display = "none";
               document.getElementById("GameWinnerHR1").style.display = "none";
@@ -170,7 +169,10 @@
               document.getElementById("GameWinnerModalDate").innerHTML = '<center><b>' + data.match_id + ', Game ' + data.game_num + '</b></center>';
               document.getElementById("GameWinnerP1Button").innerHTML = data.p1;
               document.getElementById("GameWinnerP2Button").innerHTML = data.p2;
-              console.log(document.getElementById("GameWinnerP1Button").innerHTML)
+              document.getElementById("EndGameActions").innerHTML = "";
+              for (var i = 0; i < data.last15.length; i++){
+                document.getElementById("EndGameActions").innerHTML += data.last15[i] + "<br>"
+              };
             };
           });
         });      
@@ -188,15 +190,16 @@
         fetch('/game_winner/'+match_id+'/'+game_num+'/'+game_winner).then(function(response){
           response.json().then(function(data){
             if (data.match_id === "NA"){
-              //console.log(data)
               document.getElementById("GetWinnerCloseButton").click();
             } else{
-              //console.log(data)
               document.getElementById("GameWinnerModalLabel").innerHTML = 'Get Game_Winner';
               document.getElementById("GameWinnerModalDate").innerHTML = '<center><b>' + data.match_id + ', Game ' + data.game_num + '</b></center>';
               document.getElementById("GameWinnerP1Button").innerHTML = data.p1;
               document.getElementById("GameWinnerP2Button").innerHTML = data.p2;
-              //console.log(data)
+              document.getElementById("EndGameActions").innerHTML = "";
+              for (var i = 0; i < data.last15.length; i++){
+                document.getElementById("EndGameActions").innerHTML += data.last15[i] + "<br>"
+              };
             };
           });
         });
@@ -669,7 +672,7 @@
     {% endwith %}
 
     <div class="modal fade" id="GameWinnerModal" tabindex="-1" aria-labelledby="GameWinnerModal" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h2 class="modal-title fs-5" id="GameWinnerModalLabel">Missing Game_Winners</h2>
@@ -681,22 +684,24 @@
                 Date
               </div>
               <hr id="GameWinnerHR1">
-              <div class="row" id="EndGameActions">
-                Game Action 1<br>
-                Game Action 2<br>
-                Game Action 3<br>
-                Game Action 4<br>
-                Game Action 5<br>
-                Game Action 6<br>
-                Game Action 7<br>
-                Game Action 8<br>
-                Game Action 9<br>
-                Game Action 10<br>
-                Game Action 11<br>
-                Game Action 12<br>
-                Game Action 13<br>
-                Game Action 14<br>
-                Game Action 15<br>
+              <div class="row">
+                <div class="col" id="EndGameActions">
+                  Game Action 1<br>
+                  Game Action 2<br>
+                  Game Action 3<br>
+                  Game Action 4<br>
+                  Game Action 5<br>
+                  Game Action 6<br>
+                  Game Action 7<br>
+                  Game Action 8<br>
+                  Game Action 9<br>
+                  Game Action 10<br>
+                  Game Action 11<br>
+                  Game Action 12<br>
+                  Game Action 13<br>
+                  Game Action 14<br>
+                  Game Action 15<br>
+                </div>
               </div>
               <hr id="GameWinnerHR2">
               <div class="row text-center" id="GameWinnerMessage">
