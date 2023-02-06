@@ -20,6 +20,29 @@
 
     <h1>Hello, world!</h1>
 
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <table class="table table-sm w-auto table-bordered user-select-none">
+        <thead class="table-dark">
+          <tr>
+            <th scope="col" class="text-center">Match_ID</th>
+            <th scope="col" class="text-center">Game_Num</th>
+            <th scope="col" class="text-center">Last 15</th>
+          </tr>
+        </thead>
+        <tbody style="cursor:pointer;" title="double click to get data">
+          {% for row in table %}
+          <tr class="jsTableRow">
+            <th scope="row">{{ row.match_id }}</th>
+            <td class="text-center">{{ row.game_num }}</td>
+            <td class="text-center">{{ row.last15 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   </div>
     
 {% endblock %}
