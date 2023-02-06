@@ -13,7 +13,6 @@
         $(".jsTableRow").dblclick(function(){
           var str = $(this).text().trim().replace(/\s\s+/g, ' ').split(" ")
           var table = $("h1").text().split(" ")[0]
-          console.log("dblclick:"+str+" -- "+table)
           if (table == "Matches"){
             window.location.href = '/table/games/'+str[0]+'/0'
           } else if (table == "Games"){
@@ -26,129 +25,9 @@
     </script>
     <script>
       $(document).ready(function(){
-          $("tr").click(function(){
+          $(".jsTableRow").click(function(){
               $(this).toggleClass("active");
           });
-      });
-    </script>
-    <script>
-      $(document).ready(function(){
-        $("tr").click(function(){
-          //console.log(document.getElementById("Page_Num").value)
-          var myarray = [];
-          $(".active").each(function() {
-              //console.log($(this).html());
-              myarray.push($(this).text().trim().replace(/\s\s+/g, ' ').split(" "));
-          });
-          //console.log(myarray);
-          const match_ids = myarray.map(innerArray => innerArray[0]);
-          console.log(match_ids)
-          if (myarray.length === 1){
-            document.getElementById("ReviseButton").disabled = false;
-            document.getElementById("ReviseButton").setAttribute("data-bs-target", "#ReviseModal");
-          } else if (myarray.length > 1){
-            document.getElementById("ReviseButton").disabled = false;
-            document.getElementById("ReviseButton").setAttribute("data-bs-target", "#ReviseMultiModal");
-          } else if (myarray.length === 0){
-            document.getElementById("ReviseButton").disabled = true;
-          };
-        });
-      });
-    </script>
-    <script>
-      $(document).ready(function(){
-        $("tr").click(function(){
-          console.log(input_options)
-          var toRevise = [];
-          $(".active").each(function() {
-              //console.log($(this).html());
-              toRevise = $(this).text().trim().replace(/\s\s+/g, ' ').split(" ");
-          });
-          if (toRevise.length > 0){
-            fetch('/values/'+toRevise[0]).then(function(response){
-              response.json().then(function(data){
-                document.getElementById("ReviseModalLabel").innerHTML = 'Revise Record - ' + data.match_id;
-                document.getElementById("ModalDate").innerHTML = '<center><b>Date Played:</b> ' + data.date + '</center>';
-                document.getElementById("ModalP1").innerHTML = '<b>P1:</b> ' + data.p1;
-                document.getElementById("ModalP2").innerHTML = '<b>P2:</b> ' + data.p2;
-                document.getElementById('P1_Subarch').value = data.p1_subarch;
-                document.getElementById('P2_Subarch').value = data.p2_subarch;
-                if (data.p1_arch != "NA"){
-                  document.getElementById('P1ArchButton').innerHTML = data.p1_arch;
-                } else{
-                  document.getElementById('P1ArchButton').innerHTML = "P1_Arch";
-                };
-                if (data.p2_arch != "NA"){
-                  document.getElementById('P2ArchButton').innerHTML = data.p2_arch;
-                } else{
-                  document.getElementById('P2ArchButton').innerHTML = "P2_Arch";
-                };
-                if (data.format != "NA"){
-                  document.getElementById('FormatButton').innerHTML = data.format;
-                  if (input_options["Constructed Formats"].includes(data.format)){
-                    document.getElementById('LimitedFormatButton').innerHTML = "Limited_Format";
-                    document.getElementById('LimitedFormatButton').disabled = true;
-                    document.getElementById('MatchTypeMenu').innerHTML = "";
-                    for (var i = 0; i < input_options["Constructed Match Types"].length; i++){
-                      document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Constructed Match Types"][i]+' </a></li>';
-                    };
-                  };
-                  if (data.format === "Booster Draft"){
-                    document.getElementById('LimitedFormatButton').innerHTML = "Limited_Format";
-                    document.getElementById('LimitedFormatButton').disabled = false;
-                    document.getElementById('LimitedFormatMenu').innerHTML = "";
-                    for (var i = 0; i < input_options["Booster Draft Formats"].length; i++){
-                      document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Formats"][i]+' </a></li>';
-                    };
-                    document.getElementById('MatchTypeMenu').innerHTML = "";
-                    for (var i = 0; i < input_options["Booster Draft Match Types"].length; i++){
-                      document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+' </a></li>';
-                    };
-                  };
-                  if (data.format === "Sealed Deck"){
-                    document.getElementById('LimitedFormatButton').innerHTML = "Limited_Format";
-                    document.getElementById('LimitedFormatButton').disabled = false;
-                    document.getElementById('LimitedFormatMenu').innerHTML = "";
-                    for (var i = 0; i < input_options["Sealed Formats"].length; i++){
-                      document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Sealed Formats"][i]+' </a></li>';
-                    };
-                    document.getElementById('MatchTypeMenu').innerHTML = "";
-                    for (var i = 0; i < input_options["Sealed Match Types"].length; i++){
-                      document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Sealed Match Types"][i]+' </a></li>';
-                    };
-                  };
-                  if (data.format === "Cube"){
-                    document.getElementById('LimitedFormatButton').innerHTML = "Limited_Format";
-                    document.getElementById('LimitedFormatButton').disabled = false;
-                    document.getElementById('LimitedFormatMenu').innerHTML = "";
-                    for (var i = 0; i < input_options["Cube Formats"].length; i++){
-                      document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Cube Formats"][i]+' </a></li>';
-                    };
-                    document.getElementById('MatchTypeMenu').innerHTML = "";
-                    for (var i = 0; i < input_options["Booster Draft Match Types"].length; i++){
-                      document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+' </a></li>';
-                    };
-                  };
-                  document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">NA </a></li>';
-                } else{
-                  document.getElementById('FormatButton').innerHTML = "Format";
-                };
-                if (data.limited_format != "NA"){
-                  document.getElementById('LimitedFormatButton').innerHTML = data.limited_format;
-                } else{
-                  document.getElementById('LimitedFormatButton').innerHTML = "Limited_Format";
-                };
-                if (data.match_type != "NA"){
-                  document.getElementById('MatchTypeButton').innerHTML = data.match_type;
-                } else{
-                  document.getElementById('MatchTypeButton').innerHTML = "Match_Type";
-                };
-                //console.log(data)
-              });
-            });
-          };
-          //console.log(toRevise);
-        });
       });
     </script>
     <script>
@@ -157,6 +36,7 @@
           response.json().then(function(data){
             if (data.match_id === "NA"){
               document.getElementById("EndGameActions").style.display = "none";
+              document.getElementById("GameWinnerModal2").className = "modal-dialog modal-dialog-centered";
               document.getElementById("GameWinnerModalDate").style.display = "none";
               document.getElementById("GameWinnerHR1").style.display = "none";
               document.getElementById("GameWinnerHR2").style.display = "none";
@@ -165,13 +45,14 @@
               document.getElementById("GameWinnerP2Button").disabled = true;
               document.getElementById("GameWinnerMessage").innerHTML = "<b><center>No Game records with a missing Game_Winner.</center></b>";
             } else{
+              document.getElementById("GameWinnerModal2").className = "modal-dialog modal-dialog-centered modal-lg";
               document.getElementById("GameWinnerModalLabel").innerHTML = 'Get Game_Winner';
               document.getElementById("GameWinnerModalDate").innerHTML = '<center><b>' + data.match_id + ', Game ' + data.game_num + '</b></center>';
               document.getElementById("GameWinnerP1Button").innerHTML = data.p1;
               document.getElementById("GameWinnerP2Button").innerHTML = data.p2;
               document.getElementById("EndGameActions").innerHTML = "";
-              for (var i = 0; i < data.last15.length; i++){
-                document.getElementById("EndGameActions").innerHTML += data.last15[i] + "<br>"
+              for (var i = 0; i < data.game_actions.length; i++){
+                document.getElementById("EndGameActions").innerHTML += data.game_actions[i] + "<br>"
               };
             };
           });
@@ -197,8 +78,8 @@
               document.getElementById("GameWinnerP1Button").innerHTML = data.p1;
               document.getElementById("GameWinnerP2Button").innerHTML = data.p2;
               document.getElementById("EndGameActions").innerHTML = "";
-              for (var i = 0; i < data.last15.length; i++){
-                document.getElementById("EndGameActions").innerHTML += data.last15[i] + "<br>"
+              for (var i = 0; i < data.game_actions.length; i++){
+                document.getElementById("EndGameActions").innerHTML += data.game_actions[i] + "<br>"
               };
             };
           });
@@ -578,6 +459,7 @@
           });
         });      
       };
+      function importHidden(label) {document.getElementById("dataToImport").value = label;}
     </script>
 
   </head>
@@ -595,9 +477,6 @@
               <a class="nav-link" aria-current="page" href="{{ url_for('views.index') }}"><b>Home</b></a>
             </li>
             {% if user.is_authenticated %}
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('views.logout') }}"><b>Logout</b></a>
-            </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <b>Tables</b>
@@ -625,16 +504,12 @@
                 <b>Import Data</b>
               </a>
               <ul class="dropdown-menu">
-                <li>
+<!--                 <li>
                   <form action="/load" method="POST">
                     <button type="submit" class="dropdown-item"><b>Load Data</b></button>
                   </form>
-                </li>
-                <li>
-                  <form action="/load_drafts" method="POST">
-                    <button type="submit" class="dropdown-item"><b>Load Drafts</b></button>
-                  </form>
-                </li>
+                </li> -->
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ImportModal" onclick=""><b>Import Data</b></a></li>
               </ul>
             </li>
             {% else %}
@@ -646,6 +521,16 @@
             </li>
             {% endif %}
         </div>
+
+        {% if user.is_authenticated %}
+        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('views.logout') }}"><b>Logout</b></a>
+            </li>
+        </div>
+        {% endif %}
+
       </div>
     </nav>
 
@@ -672,7 +557,7 @@
     {% endwith %}
 
     <div class="modal fade" id="GameWinnerModal" tabindex="-1" aria-labelledby="GameWinnerModal" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-dialog modal-dialog-centered modal-lg" id="GameWinnerModal2">
         <div class="modal-content">
           <div class="modal-header">
             <h2 class="modal-title fs-5" id="GameWinnerModalLabel">Missing Game_Winners</h2>
@@ -808,6 +693,41 @@
               </div>
               <div class="col">
                 <button type="submit" class="btn btn-primary" id="BestGuessNAButton" onclick="bestGuessHidden('Replace NA/Unknown')">Replace NA/Unknown</button>
+              </div>
+            </div><br>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <form action="/load" method="POST">
+      <input type="hidden" name="dataToImport" id="dataToImport" value="NA">
+      <div class="modal fade" id="ImportModal" tabindex="-1" aria-labelledby="ImportModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2 class="modal-title fs-5" id="ImportModalLabel">Import Data</h2>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="ImportCloseButton"></button>
+            </div>
+            <div class="modal-body">
+              <div class="container-fluid">
+                <div class="row" id="ImportMessage">
+                  <b>This will revise deck names according to the following:</b><br><br>
+                  <b>Constructed:</b>
+                  <p class="px-5">Compare cards played during a match to find the name of a similar decklist.</p>
+                  <b>Limited:</b>
+                  <p class="px-5">Look at basic lands played during a match to find the color combination played.</p>
+                  <b>NOTE: 'Overwrite All' will overwrite manually input deck name information. This is not reversible.</b>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col text-end">
+                <button type="submit" class="btn btn-primary" id="ImportButton1" onclick="importHidden('Matches')">Import Matches</button>
+              </div>
+              <div class="col">
+                <button type="submit" class="btn btn-primary" id="ImportButton2" onclick="importHidden('Drafts')">Import Drafts</button>
               </div>
             </div><br>
           </div>
