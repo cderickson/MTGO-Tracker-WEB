@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, create_engine
 from flask_login import login_user, login_required, logout_user, current_user
 from datetime import datetime
-from .models import User, Match, Game, Play, Pick, Draft
+from .models import User, Match, Game, Play, Pick, Draft, GameActions
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -64,7 +64,7 @@ views = Blueprint('views', __name__)
 
 @views.route('/')
 def index():
-	return render_template('index.html', user=current_user)
+	return render_template('index.html', user=current_user, table=GameActions.query.filter_by(user_id=current_user.id).all())
 
 @views.route('/register')
 def register():
@@ -121,6 +121,7 @@ def test():
 
 @views.route('/load_drafts', methods=['POST'])
 def load_drafts():
+	root_folder = os.getcwd()
 	for (root,dirs,files) in os.walk('C:\\Users\\chris\\Documents\\GitHub\\MTGO-Tracker\\draftlogs'):
 		break
 	for i in files:
@@ -195,6 +196,7 @@ def load_drafts():
 
 			#PARSED_DRAFT_DICT[i] = parsed_data[2]
 
+	os.chdir(root_folder)
 	table = Draft.query.filter_by(user_id=current_user.id).order_by(Draft.date).limit(25).all()
 	return render_template('test.html', user=current_user, table_name='drafts', table=table)
 
@@ -296,6 +298,22 @@ def load():
 						pass
 					else:
 						db.session.add(new_play)
+						db.session.commit()
+
+				for na_game in parsed_data_inverted[3]:
+					ga15_string = ''
+					for index,i in enumerate(parsed_data_inverted[3][na_game]):
+						ga15_string += i
+						if index != len(parsed_data_inverted[3][na_game])-1:
+							ga15_string += '\n'
+					new_ga15 = GameActions(user_id=current_user.id,
+										   match_id=na_game[:-2],
+										   game_num=na_game[-1],
+										   last15=ga15_string)
+					if GameActions.query.filter_by(user_id=current_user.id, match_id=na_game[:-2], game_num=na_game[-1]).first():
+						pass
+					else:
+						db.session.add(new_ga15)
 						db.session.commit()
 				
 				new_data[0].append(parsed_data[0])
@@ -461,59 +479,70 @@ def values(match_id):
 
 @views.route('/game_winner/<match_id>/<game_num>/<game_winner>')
 def game_winner(match_id, game_num, game_winner):
-	games = Game.query.filter_by(match_id=match_id, game_num=game_num, user_id=current_user.id).all()
-	matches = Match.query.filter_by(match_id=match_id, user_id=current_user.id).all()
+	if game_winner != '0':
+		games = Game.query.filter_by(match_id=match_id, game_num=game_num, user_id=current_user.id).all()
+		matches = Match.query.filter_by(match_id=match_id, user_id=current_user.id).all()
+		for game in games:
+			if game.game_winner != 'NA':
+				# error handling
+				pass
+			if game.p1 == game_winner:
+				game.game_winner = 'P1'
+			elif game.p2 == game_winner:
+				game.game_winner = 'P2'
+			else:
+				# error handling
+				pass
 
-	if game_winner == '0':
-		next_game = Game.query.filter_by(user_id=current_user.id, game_winner='NA', p1=current_user.username)
-		next_game = next_game.filter(Game.match_id > match_id).order_by(Game.match_id).first()
-		if next_game is None:
-			return {'match_id':'NA'}
-		return next_game.as_dict()
+		for match in matches:
+			if match.p1 == game_winner:
+				match.p1_wins += 1
+			elif match.p2 == game_winner:
+				match.p2_wins += 1
+			else:
+				# error handling
+				pass
+			if match.p1_wins > match.p2_wins:
+				match.match_winner = 'P1'
+			elif match.p2_wins > match.p1_wins:
+				match.match_winner = 'P2'
+			elif match.p1_wins == match.p2_wins:
+				match.match_winner = 'NA'
+			else:
+				#error
+				pass
+		db.session.commit()
 
-	for game in games:
-		if game.game_winner != 'NA':
-			# error handling
-			pass
-		if game.p1 == game_winner:
-			game.game_winner = 'P1'
-		elif game.p2 == game_winner:
-			game.game_winner = 'P2'
-		else:
-			# error handling
-			pass
-
-	for match in matches:
-		if match.p1 == game_winner:
-			match.p1_wins += 1
-		elif match.p2 == game_winner:
-			match.p2_wins += 1
-		else:
-			# error handling
-			pass
-		if match.p1_wins > match.p2_wins:
-			match.match_winner = 'P1'
-		elif match.p2_wins > match.p1_wins:
-			match.match_winner = 'P2'
-		elif match.p1_wins == match.p2_wins:
-			match.match_winner = 'NA'
-		else:
-			#error
-			pass
-
-	db.session.commit()
 	next_game = Game.query.filter_by(user_id=current_user.id, game_winner='NA', p1=current_user.username)
 	next_game = next_game.filter(Game.match_id > match_id).order_by(Game.match_id).first()
+	ga = GameActions.query.filter_by(user_id=current_user.id, match_id=next_game.match_id, game_num=next_game.game_num).first().last15.split('\n')[-15:]
+	for index,i in enumerate(ga):
+		string = i
+		if i.count('@[') != i.count('@]'):
+			continue
+		for j in range(i.count('@[')):
+			string = string.replace('@[','<b>',1).replace('@]','</b>',1)
+		ga[index] = string
+	ga_dict = {'last15' : ga}
 	if next_game is None:
 		return {'match_id':'NA'}
-	return next_game.as_dict()
+	return next_game.as_dict() | ga_dict
 
 @views.route('/game_winner_init')
 def game_winner_init():
 	first_game = Game.query.filter_by(user_id=current_user.id, game_winner='NA', p1=current_user.username).order_by(Game.match_id).first()
+	ga = GameActions.query.filter_by(user_id=current_user.id, match_id=first_game.match_id, game_num=first_game.game_num).first().last15.split('\n')[-15:]
+	for index,i in enumerate(ga):
+		string = i
+		if i.count('@[') != i.count('@]'):
+			continue
+		for j in range(i.count('@[')):
+			string = string.replace('@[','<b>',1).replace('@]','</b>',1)
+		ga[index] = string
+	ga_dict = {'last15' : ga}
 	if first_game is None:
 		return {'match_id':'NA'}
-	return first_game.as_dict()
+	return first_game.as_dict() | ga_dict
 
 @views.route('/draft_id_init')
 def draft_id_init():
@@ -521,9 +550,7 @@ def draft_id_init():
 	limited_matches = limited_matches.filter( Match.format.in_(options['Limited Formats']) ).order_by(Match.match_id)
 	first_match = limited_matches.first()
 	while True:
-		print(first_match)
 		if first_match is None:
-			print("1")
 			return {'match_id':'NA'}
 
 		lands = [play.primary_card for play in Play.query.filter_by(user_id=current_user.id, 
