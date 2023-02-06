@@ -64,7 +64,7 @@ views = Blueprint('views', __name__)
 
 @views.route('/')
 def index():
-	return render_template('index.html', user=current_user, table=GameActions.query.filter_by(user_id=current_user.id).all())
+	return render_template('index.html', user=current_user)
 
 @views.route('/register')
 def register():
@@ -80,11 +80,14 @@ def login():
 		if user:
 			if check_password_hash(user.pwd, login_pwd):
 				login_user(user, remember=True)
-				return render_template('index.html', user=current_user, success_message='Logged in.')
+				flash('Logged in.', category='success')
+				return redirect("/")
 			else:
-				return render_template('login.html', user=current_user, error_message='Email/Password combination not found.')
+				flash('Email/Password combination not found.', category='error')
+				return render_template('login.html', user=current_user)
 		else:
-			return render_template('login.html', user=current_user, error_message='Email not found.')
+			flash('Email not found.', category='error')
+			return render_template('login.html', user=current_user)
 
 	return render_template('login.html', user=current_user)
 
@@ -92,7 +95,8 @@ def login():
 @login_required
 def logout():
 	logout_user()
-	return render_template('login.html', user=current_user)
+	flash('User logged out.', category='error')
+	return redirect("/")
 
 @views.route('/form', methods=['POST'])
 def form():
@@ -119,218 +123,222 @@ def test():
 	table = Match.query.filter_by(user_id=current_user.id).order_by(Match.date).limit(25).all()
 	return render_template('test.html', user=current_user, table_name='matches', table=table)
 
-@views.route('/load_drafts', methods=['POST'])
-def load_drafts():
-	root_folder = os.getcwd()
-	for (root,dirs,files) in os.walk('C:\\Users\\chris\\Documents\\GitHub\\MTGO-Tracker\\draftlogs'):
-		break
-	for i in files:
-		if (i.count(".") != 3) or (i.count("-") != 4) or (".txt" not in i):
-			pass
-		# elif (i in PARSED_DRAFT_DICT):
-		#     os.chdir(root)
-		else:
-			os.chdir(root)
-			with io.open(i,"r",encoding="ansi") as gamelog:
-				initial = gamelog.read()
-			try:
-				parsed_data = modo.parse_draft_log(i,initial)
-				print(f'Parsed DraftLog: {i}')
-			except Exception as error:
-				#print(f'Error while parsing DraftLog: {i}: {error.message}')
-				continue
-			# if parsed_data[0][0][0] in SKIP_DRAFTS:
-			#     #print(f'Skipped DraftLog (in SKIP_DRAFTS): {i}')
-			#     continue
-
-			for draft in parsed_data[0]:
-				new_draft = Draft(user_id=current_user.id,
-								  draft_id=draft[0],
-								  hero=draft[1],
-								  player2=draft[2],
-								  player3=draft[3],
-								  player4=draft[4],
-								  player5=draft[5],
-								  player6=draft[6],
-								  player7=draft[7],
-								  player8=draft[8],
-								  match_wins=draft[9],
-								  match_losses=draft[10],
-								  format=draft[11],
-								  date=draft[12])
-				if Draft.query.filter_by(draft_id=draft[0], hero=draft[1]).first():
-					pass
-				else:
-					db.session.add(new_draft)
-					db.session.commit()
-
-			for pick in parsed_data[1]:
-				new_pick = Pick(user_id=current_user.id,
-								draft_id=pick[0],
-								card=pick[1],
-								pack_num=pick[2],
-								pick_num=pick[3],
-								pick_ovr=pick[4],
-								avail1=pick[5],
-								avail2=pick[6],
-								avail3=pick[7],
-								avail4=pick[8],
-								avail5=pick[9],
-								avail6=pick[10],
-								avail7=pick[11],
-								avail8=pick[12],
-								avail9=pick[13],
-								avail10=pick[14],
-								avail11=pick[15],
-								avail12=pick[16],
-								avail13=pick[17],
-								avail14=pick[18])
-				if Pick.query.filter_by(user_id=current_user.id, draft_id=pick[0], pick_ovr=pick[4]).first():
-					pass
-				else:
-					db.session.add(new_pick)
-					db.session.commit()
-			#DRAFTS_TABLE.extend(parsed_data[0])
-			#PICKS_TABLE.extend(parsed_data[1])
-			
-
-			#PARSED_DRAFT_DICT[i] = parsed_data[2]
-
-	os.chdir(root_folder)
-	table = Draft.query.filter_by(user_id=current_user.id).order_by(Draft.date).limit(25).all()
-	return render_template('test.html', user=current_user, table_name='drafts', table=table)
-
 @views.route('/load', methods=['POST'])
 def load():
+	dataToImport = request.form.get('dataToImport')
 	root_folder = os.getcwd()
-	new_data = [[],[],[],{}]
-	for (root,dirs,files) in os.walk('C:\\Users\\chris\\Documents\\GitHub\\MTGO-Tracker\\gamelogs'):
+
+	if dataToImport == 'Matches':
+		new_data = [[],[],[],{}]
+		for (root,dirs,files) in os.walk('C:\\Users\\chris\\Documents\\GitHub\\MTGO-Tracker\\gamelogs'):
+			for i in files:
+				if ("Match_GameLog_" not in i) or (len(i) < 30):
+					pass
+				else:
+					os.chdir(root)
+					with io.open(i,"r",encoding="ansi") as gamelog:
+						initial = gamelog.read()
+						mtime = time.ctime(os.path.getmtime(i))
+					try:
+						parsed_data = modo.get_all_data(initial,mtime)
+						parsed_data_inverted = modo.invert_join([[parsed_data[0]], parsed_data[1], parsed_data[2], parsed_data[3], parsed_data[4]])
+						#print('Parsed GameLog: ' + i + '\n')
+					except Exception as error:
+						#print('Error while parsing GameLog: ' + i + '\n')
+						continue
+
+					# if parsed_data[0][0] in SKIP_FILES:
+					# 	print('Skipped GameLog (in SKIP_FILES): ' + i + '\n')
+					# 	continue
+					# if isinstance(parsed_data, str):
+					# 	skip_dict[i] = parsed_data
+					# 	continue
+					# PARSED_FILE_DICT[i] = (parsed_data[0][0],datetime.datetime.strptime(mtime,"%a %b %d %H:%M:%S %Y"))
+					
+					for match in parsed_data_inverted[0]:
+						new_match = Match(user_id=current_user.id,
+										  match_id=match[0],
+										  draft_id=match[1],
+										  p1=match[2],
+										  p1_arch=match[3],
+										  p1_subarch=match[4],
+										  p2=match[5],
+										  p2_arch=match[6],
+										  p2_subarch=match[7],
+										  p1_roll=match[8],
+										  p2_roll=match[9],
+										  roll_winner=match[10],
+										  p1_wins=match[11],
+										  p2_wins=match[12],
+										  match_winner=match[13],
+										  format=match[14],
+										  limited_format=match[15],
+										  match_type=match[16],
+										  date=match[17])
+
+						if Match.query.filter_by(match_id=match[0], p1=match[2]).first():
+							pass
+						else:
+							db.session.add(new_match)
+							db.session.commit()
+
+					for game in parsed_data_inverted[1]:
+						new_game = Game(user_id=current_user.id,
+										match_id=game[0],
+										p1=game[1],
+										p2=game[2],
+										game_num=game[3],
+										pd_selector=game[4],
+										pd_choice=game[5],
+										on_play=game[6],
+										on_draw=game[7],
+										p1_mulls=game[8],
+										p2_mulls=game[9],
+										turns=game[10],
+										game_winner=game[11])
+						if Game.query.filter_by(match_id=game[0], game_num=game[3], p1=game[1]).first():
+							pass
+						else:
+							db.session.add(new_game)
+							db.session.commit()
+
+					for play in parsed_data_inverted[2]:
+						new_play = Play(user_id=current_user.id,
+										match_id=play[0],
+										game_num=play[1],
+										play_num=play[2],
+										turn_num=play[3],
+										casting_player=play[4],
+										action=play[5],
+										primary_card=play[6],
+										target1=play[7],
+										target2=play[8],
+										target3=play[9],
+										opp_target=play[10],
+										self_target=play[11],
+										cards_drawn=play[12],
+										attackers=play[13],
+										active_player=play[14],
+										non_active_player=play[15])
+						if Play.query.filter_by(match_id=play[0], game_num=play[1], play_num=play[2]).first():
+							pass
+						else:
+							db.session.add(new_play)
+							db.session.commit()
+
+					for na_game in parsed_data_inverted[3]:
+						ga15_string = ''
+						for index,i in enumerate(parsed_data_inverted[3][na_game]):
+							ga15_string += i
+							if index != len(parsed_data_inverted[3][na_game])-1:
+								ga15_string += '\n'
+						new_ga15 = GameActions(user_id=current_user.id,
+											   match_id=na_game[:-2],
+											   game_num=na_game[-1],
+											   game_actions=ga15_string)
+						if GameActions.query.filter_by(user_id=current_user.id, match_id=na_game[:-2], game_num=na_game[-1]).first():
+							pass
+						else:
+							db.session.add(new_ga15)
+							db.session.commit()
+					
+					new_data[0].append(parsed_data[0])
+					for i in parsed_data[1]:
+						new_data[1].append(i)
+					for i in parsed_data[2]:
+						new_data[2].append(i)
+					for i in parsed_data[3]:
+						new_data[3] = new_data[3] | parsed_data[3]
+
+					# if parsed_data[4][0] == True:
+					# 	TIMEOUT[parsed_data[0][0]] = parsed_data[4][1]
+			new_data_inverted = modo.invert_join(new_data)
+		
+		os.chdir(root_folder)
+		return redirect("/table/matches/1")
+
+	if dataToImport == 'Drafts':
+		for (root,dirs,files) in os.walk('C:\\Users\\chris\\Documents\\GitHub\\MTGO-Tracker\\draftlogs'):
+			break
 		for i in files:
-			if ("Match_GameLog_" not in i) or (len(i) < 30):
+			if (i.count(".") != 3) or (i.count("-") != 4) or (".txt" not in i):
 				pass
+			# elif (i in PARSED_DRAFT_DICT):
+			#     os.chdir(root)
 			else:
 				os.chdir(root)
 				with io.open(i,"r",encoding="ansi") as gamelog:
 					initial = gamelog.read()
-					mtime = time.ctime(os.path.getmtime(i))
 				try:
-					parsed_data = modo.get_all_data(initial,mtime)
-					parsed_data_inverted = modo.invert_join([[parsed_data[0]], parsed_data[1], parsed_data[2], parsed_data[3], parsed_data[4]])
-					#print('Parsed GameLog: ' + i + '\n')
+					parsed_data = modo.parse_draft_log(i,initial)
+					print(f'Parsed DraftLog: {i}')
 				except Exception as error:
-					#print('Error while parsing GameLog: ' + i + '\n')
+					#print(f'Error while parsing DraftLog: {i}: {error.message}')
 					continue
+				# if parsed_data[0][0][0] in SKIP_DRAFTS:
+				#     #print(f'Skipped DraftLog (in SKIP_DRAFTS): {i}')
+				#     continue
 
-				# if parsed_data[0][0] in SKIP_FILES:
-				# 	print('Skipped GameLog (in SKIP_FILES): ' + i + '\n')
-				# 	continue
-				# if isinstance(parsed_data, str):
-				# 	skip_dict[i] = parsed_data
-				# 	continue
-				# PARSED_FILE_DICT[i] = (parsed_data[0][0],datetime.datetime.strptime(mtime,"%a %b %d %H:%M:%S %Y"))
+				for draft in parsed_data[0]:
+					new_draft = Draft(user_id=current_user.id,
+									  draft_id=draft[0],
+									  hero=draft[1],
+									  player2=draft[2],
+									  player3=draft[3],
+									  player4=draft[4],
+									  player5=draft[5],
+									  player6=draft[6],
+									  player7=draft[7],
+									  player8=draft[8],
+									  match_wins=draft[9],
+									  match_losses=draft[10],
+									  format=draft[11],
+									  date=draft[12])
+					if Draft.query.filter_by(draft_id=draft[0], hero=draft[1]).first():
+						pass
+					else:
+						db.session.add(new_draft)
+						db.session.commit()
+
+				for pick in parsed_data[1]:
+					p = pick
+					for index,i in enumerate(p):
+						if i == 'NA':
+							p[index] = ''
+
+					new_pick = Pick(user_id=current_user.id,
+									draft_id=pick[0],
+									card=pick[1],
+									pack_num=pick[2],
+									pick_num=pick[3],
+									pick_ovr=pick[4],
+									avail1=p[5],
+									avail2=p[6],
+									avail3=p[7],
+									avail4=p[8],
+									avail5=p[9],
+									avail6=p[10],
+									avail7=p[11],
+									avail8=p[12],
+									avail9=p[13],
+									avail10=p[14],
+									avail11=p[15],
+									avail12=p[16],
+									avail13=p[17],
+									avail14=p[18])
+					if Pick.query.filter_by(user_id=current_user.id, draft_id=pick[0], pick_ovr=pick[4]).first():
+						pass
+					else:
+						db.session.add(new_pick)
+						db.session.commit()
+				#DRAFTS_TABLE.extend(parsed_data[0])
+				#PICKS_TABLE.extend(parsed_data[1])
 				
-				for match in parsed_data_inverted[0]:
-					new_match = Match(user_id=current_user.id,
-									  match_id=match[0],
-									  draft_id=match[1],
-									  p1=match[2],
-									  p1_arch=match[3],
-									  p1_subarch=match[4],
-									  p2=match[5],
-									  p2_arch=match[6],
-									  p2_subarch=match[7],
-									  p1_roll=match[8],
-									  p2_roll=match[9],
-									  roll_winner=match[10],
-									  p1_wins=match[11],
-									  p2_wins=match[12],
-									  match_winner=match[13],
-									  format=match[14],
-									  limited_format=match[15],
-									  match_type=match[16],
-									  date=match[17])
 
-					if Match.query.filter_by(match_id=match[0], p1=match[2]).first():
-						pass
-					else:
-						db.session.add(new_match)
-						db.session.commit()
+				#PARSED_DRAFT_DICT[i] = parsed_data[2]
 
-				for game in parsed_data_inverted[1]:
-					new_game = Game(user_id=current_user.id,
-									match_id=game[0],
-									p1=game[1],
-									p2=game[2],
-									game_num=game[3],
-									pd_selector=game[4],
-									pd_choice=game[5],
-									on_play=game[6],
-									on_draw=game[7],
-									p1_mulls=game[8],
-									p2_mulls=game[9],
-									turns=game[10],
-									game_winner=game[11])
-					if Game.query.filter_by(match_id=game[0], game_num=game[3], p1=game[1]).first():
-						pass
-					else:
-						db.session.add(new_game)
-						db.session.commit()
-
-				for play in parsed_data_inverted[2]:
-					new_play = Play(user_id=current_user.id,
-									match_id=play[0],
-									game_num=play[1],
-									play_num=play[2],
-									turn_num=play[3],
-									casting_player=play[4],
-									action=play[5],
-									primary_card=play[6],
-									target1=play[7],
-									target2=play[8],
-									target3=play[9],
-									opp_target=play[10],
-									self_target=play[11],
-									cards_drawn=play[12],
-									attackers=play[13],
-									active_player=play[14],
-									non_active_player=play[15])
-					if Play.query.filter_by(match_id=play[0], game_num=play[1], play_num=play[2]).first():
-						pass
-					else:
-						db.session.add(new_play)
-						db.session.commit()
-
-				for na_game in parsed_data_inverted[3]:
-					ga15_string = ''
-					for index,i in enumerate(parsed_data_inverted[3][na_game]):
-						ga15_string += i
-						if index != len(parsed_data_inverted[3][na_game])-1:
-							ga15_string += '\n'
-					new_ga15 = GameActions(user_id=current_user.id,
-										   match_id=na_game[:-2],
-										   game_num=na_game[-1],
-										   last15=ga15_string)
-					if GameActions.query.filter_by(user_id=current_user.id, match_id=na_game[:-2], game_num=na_game[-1]).first():
-						pass
-					else:
-						db.session.add(new_ga15)
-						db.session.commit()
-				
-				new_data[0].append(parsed_data[0])
-				for i in parsed_data[1]:
-					new_data[1].append(i)
-				for i in parsed_data[2]:
-					new_data[2].append(i)
-				for i in parsed_data[3]:
-					new_data[3] = new_data[3] | parsed_data[3]
-
-				# if parsed_data[4][0] == True:
-				# 	TIMEOUT[parsed_data[0][0]] = parsed_data[4][1]
-		new_data_inverted = modo.invert_join(new_data)
-	
-	os.chdir(root_folder)
-	table = Match.query.filter_by(user_id=current_user.id).order_by(Match.date).limit(25).all()
-	return render_template('test.html', user=current_user, table_name='matches', table=table)
+		os.chdir(root_folder)
+		return redirect("/table/drafts/1")
 
 @views.route('/table/<table_name>/<page_num>')
 def table(table_name, page_num):
@@ -515,7 +523,9 @@ def game_winner(match_id, game_num, game_winner):
 
 	next_game = Game.query.filter_by(user_id=current_user.id, game_winner='NA', p1=current_user.username)
 	next_game = next_game.filter(Game.match_id > match_id).order_by(Game.match_id).first()
-	ga = GameActions.query.filter_by(user_id=current_user.id, match_id=next_game.match_id, game_num=next_game.game_num).first().last15.split('\n')[-15:]
+	if next_game is None:
+		return {'match_id':'NA'}
+	ga = GameActions.query.filter_by(user_id=current_user.id, match_id=next_game.match_id, game_num=next_game.game_num).first().game_actions.split('\n')[-15:]
 	for index,i in enumerate(ga):
 		string = i
 		if i.count('@[') != i.count('@]'):
@@ -523,15 +533,15 @@ def game_winner(match_id, game_num, game_winner):
 		for j in range(i.count('@[')):
 			string = string.replace('@[','<b>',1).replace('@]','</b>',1)
 		ga[index] = string
-	ga_dict = {'last15' : ga}
-	if next_game is None:
-		return {'match_id':'NA'}
+	ga_dict = {'game_actions' : ga}
 	return next_game.as_dict() | ga_dict
 
 @views.route('/game_winner_init')
 def game_winner_init():
 	first_game = Game.query.filter_by(user_id=current_user.id, game_winner='NA', p1=current_user.username).order_by(Game.match_id).first()
-	ga = GameActions.query.filter_by(user_id=current_user.id, match_id=first_game.match_id, game_num=first_game.game_num).first().last15.split('\n')[-15:]
+	if first_game is None:
+		return {'match_id':'NA'}
+	ga = GameActions.query.filter_by(user_id=current_user.id, match_id=first_game.match_id, game_num=first_game.game_num).first().game_actions.split('\n')[-15:]
 	for index,i in enumerate(ga):
 		string = i
 		if i.count('@[') != i.count('@]'):
@@ -539,9 +549,7 @@ def game_winner_init():
 		for j in range(i.count('@[')):
 			string = string.replace('@[','<b>',1).replace('@]','</b>',1)
 		ga[index] = string
-	ga_dict = {'last15' : ga}
-	if first_game is None:
-		return {'match_id':'NA'}
+	ga_dict = {'game_actions' : ga}
 	return first_game.as_dict() | ga_dict
 
 @views.route('/draft_id_init')
@@ -737,3 +745,8 @@ def best_guess():
 
 	flash(f'{con_count} constructed decks revised, {lim_count} limited decks revised.', category='success')
 	return redirect("/table/matches/1")
+
+@views.route('/remove', methods=['POST'])
+def remove():
+	print(request.form.get('removeType'))
+	print(request.form.get('removeMatchId'))
