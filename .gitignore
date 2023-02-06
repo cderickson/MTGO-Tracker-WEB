@@ -3,5 +3,6 @@ website/__pycache__/
 
 # UTILITY FILES
 instance/
+instance/database.db/
 # AUXILIARY FILES
 
