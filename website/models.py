@@ -13,7 +13,6 @@ class User(db.Model, UserMixin):
 	picks=db.relationship('Pick')
 
 class Match(db.Model):
-	#id = db.Column(db.Integer, primary_key=True)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	match_id = db.Column(db.String(75), primary_key=True)
 	draft_id = db.Column(db.String(75))
@@ -37,7 +36,6 @@ class Match(db.Model):
 		return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class Game(db.Model):
-	#id = db.Column(db.Integer, primary_key=True)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	match_id = db.Column(db.String(75), primary_key=True)
 	p1 = db.Column(db.String(30), primary_key=True)
@@ -55,7 +53,6 @@ class Game(db.Model):
 		return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class Play(db.Model):
-	#id = db.Column(db.Integer, primary_key=True)
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	match_id = db.Column(db.String(75), primary_key=True)
 	game_num = db.Column(db.Integer, primary_key=True)
@@ -111,3 +108,9 @@ class Draft(db.Model):
 	match_losses = db.Column(db.Integer)
 	format = db.Column(db.String(20))
 	date = db.Column(db.String(20))
+
+class GameActions(db.Model):
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+	match_id = db.Column(db.String(75), db.ForeignKey('game.match_id'), primary_key=True)
+	game_num = db.Column(db.Integer, db.ForeignKey('game.game_num'), primary_key=True)
+	last15 = db.Column(db.String(1500))
