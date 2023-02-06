@@ -23,7 +23,10 @@
   {% if (table_name | capitalize) == 'Matches' %}
     <div class="row">
       <div class="col text-end">
-        <button disabled id="ReviseButton" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#ReviseModal" data-bs-whatever="@getbootstrap">Revise Record</button>
+        <button disabled id="ReviseButton" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#ReviseModal">Revise Record</button>
+      </div>
+      <div class="col-md-auto">
+        <button disabled id="RemoveButton" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#RemoveModal">Remove Record</button>
       </div>
       <div class="col">
         <button disabled id="ExportButton" type="button" class="btn btn-secondary">Export</button>
@@ -492,6 +495,41 @@
     </div>
   </form>
 
+  <form action="/remove" method="POST">
+    <input type="hidden" name="removeType" id="removeType" value="NA">
+    <input type="hidden" name="removeMatchId" id="removeMatchId" value="NA">
+    <div class="modal fade" id="RemoveModal" tabindex="-1" aria-labelledby="RemoveModal" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title fs-5" id="RemoveModalLabel">Remove Record</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="RemoveCloseButton"></button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="row" id="RemoveMessage">
+                <b><center>This will remove the selected Match and its associated Games/Plays from your database.</center></b><br><br><br>
+                <hr>
+                <b>Remove:</b>
+                <p class="px-5">The record will be re-parsed and included in future data imports.</p>
+                <b>Remove and Ignore:</b>
+                <p class="px-5">The record will <b>not</b> be included in future data imports.</p>
+              </div>
+            </div>
+          </div>
+          <hr>
+          <div class="row">
+            <div class="col text-end">
+              <button type="submit" class="btn btn-primary" id="RemoveButton1" onclick="removeHidden('Remove')">Remove</button>
+            </div>
+            <div class="col">
+              <button type="submit" class="btn btn-primary" id="RemoveButton2" onclick="removeHidden('Ignore')">Remove and Ignore</button>
+            </div>
+          </div><br>
+        </div>
+      </div>
+    </div>
+  </form>
 
   <script>
     let input_options;
@@ -532,5 +570,130 @@
       });     
     };
   </script>
+
+  {% if (table_name | capitalize) == 'Matches' %}
+  <script>
+    var match_ids = []
+    $(document).ready(function(){
+      $(".jsTableRow").click(function(){
+        var myarray = [];
+        $(".active").each(function() {
+            myarray.push($(this).text().trim().replace(/\s\s+/g, ' ').split(" "));
+        });
+        match_ids = myarray.map(innerArray => innerArray[0]);
+        if (myarray.length === 1){
+          document.getElementById("ReviseButton").disabled = false;
+          document.getElementById("RemoveButton").disabled = false;
+          document.getElementById("ReviseButton").setAttribute("data-bs-target", "#ReviseModal");
+        } else if (myarray.length > 1){
+          document.getElementById("ReviseButton").disabled = false;
+          document.getElementById("RemoveButton").disabled = true;
+          document.getElementById("ReviseButton").setAttribute("data-bs-target", "#ReviseMultiModal");
+        } else if (myarray.length === 0){
+          document.getElementById("ReviseButton").disabled = true;
+          document.getElementById("RemoveButton").disabled = true;
+        };
+      });
+    });
+  </script>
+  <script>
+    $(document).ready(function(){
+      $(".jsTableRow").click(function(){
+        var toRevise = [];
+        $(".active").each(function() {
+            toRevise = $(this).text().trim().replace(/\s\s+/g, ' ').split(" ");
+        });
+        if (toRevise.length > 0){
+          fetch('/values/'+toRevise[0]).then(function(response){
+            response.json().then(function(data){
+              document.getElementById("ReviseModalLabel").innerHTML = 'Revise Record - ' + data.match_id;
+              document.getElementById("ModalDate").innerHTML = '<center><b>Date Played:</b> ' + data.date + '</center>';
+              document.getElementById("ModalP1").innerHTML = '<b>P1:</b> ' + data.p1;
+              document.getElementById("ModalP2").innerHTML = '<b>P2:</b> ' + data.p2;
+              document.getElementById('P1_Subarch').value = data.p1_subarch;
+              document.getElementById('P2_Subarch').value = data.p2_subarch;
+              if (data.p1_arch != "NA"){
+                document.getElementById('P1ArchButton').innerHTML = data.p1_arch;
+              } else{
+                document.getElementById('P1ArchButton').innerHTML = "P1_Arch";
+              };
+              if (data.p2_arch != "NA"){
+                document.getElementById('P2ArchButton').innerHTML = data.p2_arch;
+              } else{
+                document.getElementById('P2ArchButton').innerHTML = "P2_Arch";
+              };
+              if (data.format != "NA"){
+                document.getElementById('FormatButton').innerHTML = data.format;
+                if (input_options["Constructed Formats"].includes(data.format)){
+                  document.getElementById('LimitedFormatButton').innerHTML = "Limited_Format";
+                  document.getElementById('LimitedFormatButton').disabled = true;
+                  document.getElementById('MatchTypeMenu').innerHTML = "";
+                  for (var i = 0; i < input_options["Constructed Match Types"].length; i++){
+                    document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Constructed Match Types"][i]+' </a></li>';
+                  };
+                };
+                if (data.format === "Booster Draft"){
+                  document.getElementById('LimitedFormatButton').innerHTML = "Limited_Format";
+                  document.getElementById('LimitedFormatButton').disabled = false;
+                  document.getElementById('LimitedFormatMenu').innerHTML = "";
+                  for (var i = 0; i < input_options["Booster Draft Formats"].length; i++){
+                    document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Formats"][i]+' </a></li>';
+                  };
+                  document.getElementById('MatchTypeMenu').innerHTML = "";
+                  for (var i = 0; i < input_options["Booster Draft Match Types"].length; i++){
+                    document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+' </a></li>';
+                  };
+                };
+                if (data.format === "Sealed Deck"){
+                  document.getElementById('LimitedFormatButton').innerHTML = "Limited_Format";
+                  document.getElementById('LimitedFormatButton').disabled = false;
+                  document.getElementById('LimitedFormatMenu').innerHTML = "";
+                  for (var i = 0; i < input_options["Sealed Formats"].length; i++){
+                    document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Sealed Formats"][i]+' </a></li>';
+                  };
+                  document.getElementById('MatchTypeMenu').innerHTML = "";
+                  for (var i = 0; i < input_options["Sealed Match Types"].length; i++){
+                    document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Sealed Match Types"][i]+' </a></li>';
+                  };
+                };
+                if (data.format === "Cube"){
+                  document.getElementById('LimitedFormatButton').innerHTML = "Limited_Format";
+                  document.getElementById('LimitedFormatButton').disabled = false;
+                  document.getElementById('LimitedFormatMenu').innerHTML = "";
+                  for (var i = 0; i < input_options["Cube Formats"].length; i++){
+                    document.getElementById("LimitedFormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Cube Formats"][i]+' </a></li>';
+                  };
+                  document.getElementById('MatchTypeMenu').innerHTML = "";
+                  for (var i = 0; i < input_options["Booster Draft Match Types"].length; i++){
+                    document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">'+input_options["Booster Draft Match Types"][i]+' </a></li>';
+                  };
+                };
+                document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">NA </a></li>';
+              } else{
+                document.getElementById('FormatButton').innerHTML = "Format";
+              };
+              if (data.limited_format != "NA"){
+                document.getElementById('LimitedFormatButton').innerHTML = data.limited_format;
+              } else{
+                document.getElementById('LimitedFormatButton').innerHTML = "Limited_Format";
+              };
+              if (data.match_type != "NA"){
+                document.getElementById('MatchTypeButton').innerHTML = data.match_type;
+              } else{
+                document.getElementById('MatchTypeButton').innerHTML = "Match_Type";
+              };
+            });
+          });
+        };
+      });
+    });
+  </script>
+  <script>
+    function removeHidden(label) {
+      document.getElementById("removeType").value = label;
+      document.getElementById("removeMatchId").value = match_ids[0];
+    }
+  </script>
+  {% endif %}
 
 {% endblock %}
