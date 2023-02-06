@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, create_engine
 from flask_login import login_user, login_required, logout_user, current_user
 from datetime import datetime
-from .models import User, Match, Game, Play, Pick, Draft, GameActions
+from .models import User, Match, Game, Play, Pick, Draft, GameActions, Removed
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -147,15 +147,18 @@ def load():
 						#print('Error while parsing GameLog: ' + i + '\n')
 						continue
 
-					# if parsed_data[0][0] in SKIP_FILES:
-					# 	print('Skipped GameLog (in SKIP_FILES): ' + i + '\n')
-					# 	continue
+					if Removed.query.filter_by(match_id=parsed_data_inverted[0][0][0]).first():
+						print("skipped:"+match[0][0][0])
+						continue
+
 					# if isinstance(parsed_data, str):
 					# 	skip_dict[i] = parsed_data
 					# 	continue
 					# PARSED_FILE_DICT[i] = (parsed_data[0][0],datetime.datetime.strptime(mtime,"%a %b %d %H:%M:%S %Y"))
 					
 					for match in parsed_data_inverted[0]:
+						if Match.query.filter_by(match_id=match[0], p1=match[2]).first():
+							continue
 						new_match = Match(user_id=current_user.id,
 										  match_id=match[0],
 										  draft_id=match[1],
@@ -175,14 +178,12 @@ def load():
 										  limited_format=match[15],
 										  match_type=match[16],
 										  date=match[17])
-
-						if Match.query.filter_by(match_id=match[0], p1=match[2]).first():
-							pass
-						else:
-							db.session.add(new_match)
-							db.session.commit()
+						db.session.add(new_match)
+						db.session.commit()
 
 					for game in parsed_data_inverted[1]:
+						if Game.query.filter_by(match_id=game[0], game_num=game[3], p1=game[1]).first():
+							continue
 						new_game = Game(user_id=current_user.id,
 										match_id=game[0],
 										p1=game[1],
@@ -196,13 +197,12 @@ def load():
 										p2_mulls=game[9],
 										turns=game[10],
 										game_winner=game[11])
-						if Game.query.filter_by(match_id=game[0], game_num=game[3], p1=game[1]).first():
-							pass
-						else:
-							db.session.add(new_game)
-							db.session.commit()
+						db.session.add(new_game)
+						db.session.commit()
 
 					for play in parsed_data_inverted[2]:
+						if Play.query.filter_by(match_id=play[0], game_num=play[1], play_num=play[2]).first():
+							continue
 						new_play = Play(user_id=current_user.id,
 										match_id=play[0],
 										game_num=play[1],
@@ -220,13 +220,12 @@ def load():
 										attackers=play[13],
 										active_player=play[14],
 										non_active_player=play[15])
-						if Play.query.filter_by(match_id=play[0], game_num=play[1], play_num=play[2]).first():
-							pass
-						else:
-							db.session.add(new_play)
-							db.session.commit()
+						db.session.add(new_play)
+						db.session.commit()
 
 					for na_game in parsed_data_inverted[3]:
+						if GameActions.query.filter_by(user_id=current_user.id, match_id=na_game[:-2], game_num=na_game[-1]).first():
+							continue
 						ga15_string = ''
 						for index,i in enumerate(parsed_data_inverted[3][na_game]):
 							ga15_string += i
@@ -236,11 +235,8 @@ def load():
 											   match_id=na_game[:-2],
 											   game_num=na_game[-1],
 											   game_actions=ga15_string)
-						if GameActions.query.filter_by(user_id=current_user.id, match_id=na_game[:-2], game_num=na_game[-1]).first():
-							pass
-						else:
-							db.session.add(new_ga15)
-							db.session.commit()
+						db.session.add(new_ga15)
+						db.session.commit()
 					
 					new_data[0].append(parsed_data[0])
 					for i in parsed_data[1]:
@@ -280,6 +276,8 @@ def load():
 				#     continue
 
 				for draft in parsed_data[0]:
+					if Draft.query.filter_by(draft_id=draft[0], hero=draft[1]).first():
+						continue
 					new_draft = Draft(user_id=current_user.id,
 									  draft_id=draft[0],
 									  hero=draft[1],
@@ -294,18 +292,16 @@ def load():
 									  match_losses=draft[10],
 									  format=draft[11],
 									  date=draft[12])
-					if Draft.query.filter_by(draft_id=draft[0], hero=draft[1]).first():
-						pass
-					else:
-						db.session.add(new_draft)
-						db.session.commit()
+					db.session.add(new_draft)
+					db.session.commit()
 
 				for pick in parsed_data[1]:
+					if Pick.query.filter_by(user_id=current_user.id, draft_id=pick[0], pick_ovr=pick[4]).first():
+						continue
 					p = pick
 					for index,i in enumerate(p):
 						if i == 'NA':
 							p[index] = ''
-
 					new_pick = Pick(user_id=current_user.id,
 									draft_id=pick[0],
 									card=pick[1],
@@ -326,16 +322,8 @@ def load():
 									avail12=p[16],
 									avail13=p[17],
 									avail14=p[18])
-					if Pick.query.filter_by(user_id=current_user.id, draft_id=pick[0], pick_ovr=pick[4]).first():
-						pass
-					else:
-						db.session.add(new_pick)
-						db.session.commit()
-				#DRAFTS_TABLE.extend(parsed_data[0])
-				#PICKS_TABLE.extend(parsed_data[1])
-				
-
-				#PARSED_DRAFT_DICT[i] = parsed_data[2]
+					db.session.add(new_pick)
+					db.session.commit()
 
 		os.chdir(root_folder)
 		return redirect("/table/drafts/1")
@@ -360,7 +348,6 @@ def table(table_name, page_num):
 		table = Play.query.filter_by(user_id=current_user.id).order_by(Play.match_id).limit(page_size*int(page_num)).all()
 	elif table_name.lower() == 'drafts':
 		pages = math.ceil(Draft.query.filter_by(user_id=current_user.id).count()/page_size)
-		print(pages)
 		if (int(page_num) < 1) or (int(page_num) > pages):
 			page_num = 0
 		table = Draft.query.filter_by(user_id=current_user.id).order_by(Draft.draft_id).limit(page_size*int(page_num)).all()
@@ -748,5 +735,22 @@ def best_guess():
 
 @views.route('/remove', methods=['POST'])
 def remove():
-	print(request.form.get('removeType'))
-	print(request.form.get('removeMatchId'))
+	removeType = request.form.get('removeType')
+	match_id = request.form.get('removeMatchId')
+
+	match_size = Match.query.filter_by(user_id=current_user.id, match_id=match_id).count()
+	game_size = Game.query.filter_by(user_id=current_user.id, match_id=match_id).count()
+	play_size = Play.query.filter_by(user_id=current_user.id, match_id=match_id).count()
+
+	Match.query.filter_by(user_id=current_user.id, match_id=match_id).delete()
+	Game.query.filter_by(user_id=current_user.id, match_id=match_id).delete()
+	Play.query.filter_by(user_id=current_user.id, match_id=match_id).delete()
+
+	if removeType == 'Ignore':
+		newIgnore = Removed(user_id=current_user.id, match_id=match_id, ignored=True)
+		db.session.add(newIgnore)
+
+	db.session.commit()
+
+	flash(f'{match_size} Matches removed, {game_size} Games removed, {play_size} Plays removed.', category='success')
+	return redirect("/table/matches/1")
