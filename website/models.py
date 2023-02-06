@@ -113,4 +113,9 @@ class GameActions(db.Model):
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	match_id = db.Column(db.String(75), db.ForeignKey('game.match_id'), primary_key=True)
 	game_num = db.Column(db.Integer, db.ForeignKey('game.game_num'), primary_key=True)
-	last15 = db.Column(db.String(1500))
+	game_actions = db.Column(db.String(5000))
+
+class Removed(db.Model):
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+	match_id = db.Column(db.String(75), db.ForeignKey('match.match_id'), primary_key=True)
+	ignored = db.Column(db.Integer)
