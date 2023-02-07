@@ -754,3 +754,7 @@ def remove():
 
 	flash(f'{match_size} Matches removed, {game_size} Games removed, {play_size} Plays removed.', category='success')
 	return redirect("/table/matches/1")
+
+@views.route('/profile')
+def profile():
+	return render_template('profile.html', user=current_user)
