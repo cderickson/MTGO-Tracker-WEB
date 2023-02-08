@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+  <h1><center>
+    {% if (dash_name) == 'match_history' %}
+      Match History
+    {% endif %}
+    {% if (dash_name) == 'match_stats' %}
+      Match Stats
+    {% endif %}
+    {% if (dash_name) == 'game_stats' %}
+      Game Stats
+    {% endif %}
+    {% if (dash_name) == 'play_stats' %}
+      Play Stats
+    {% endif %}
+    {% if (dash_name) == 'opponents' %}
+      Opponents
+    {% endif %}
+    {% if (dash_name) == 'card_data' %}
+      Card Data
+    {% endif %}
+  </center></h1><br>
+
+  <form action="/dashboards/{{ dash_name }}" method="POST">
+    <input type="hidden" name="dashName" id="dashName" value="{{ dash_name }}">
+    <input type="hidden" name="dashOpponent" id="dashOpponent" value="NA">
+    <input type="hidden" name="dashFormat" id="dashFormat" value="NA">
+    <input type="hidden" name="dashLimitedFormat" id="dashLimitedFormat" value="NA">
+    <input type="hidden" name="dashDeck" id="dashDeck" value="NA">
+    <input type="hidden" name="dashOppDeck" id="dashOppDeck" value="NA">
+    <input type="hidden" name="dashDate1" id="dashDate1" value="NA">
+    <input type="hidden" name="dashDate2" id="dashDate2" value="NA">
+    <div class="row">
+      <div class="col text-end">
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="OpponentFilter" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              {{ inputs.0 }}
+          </button>
+          <ul class="dropdown-menu" id="OpponentFilterMenu"></ul>
+        </div>
+      </div>
+      <div class="col-md-auto">
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="FormatFilter" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              {{ inputs.1 }}
+          </button>
+          <ul class="dropdown-menu" id="FormatFilterMenu"></ul>
+        </div>
+      </div>
+      <div class="col-md-auto">
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="LimitedFormatFilter" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              {{ inputs.2 }}
+          </button>
+          <ul class="dropdown-menu" id="LimitedFormatFilterMenu"></ul>
+        </div>
+      </div>
+      <div class="col-md-auto">
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="DeckFilter" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              {{ inputs.3 }}
+          </button>
+          <ul class="dropdown-menu" id="DeckFilterMenu"></ul>
+        </div>
+      </div>
+      <div class="col-md-auto">
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="OppDeckFilter" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              {{ inputs.4 }}
+          </button>
+          <ul class="dropdown-menu" id="OppDeckFilterMenu"></ul>
+        </div>
+      </div>
+      <div class="col-md-auto">
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="Date1Filter" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              {{ inputs.5 }}
+          </button>
+          <ul class="dropdown-menu" id="Date1FilterMenu"></ul>
+        </div>
+      </div>
+      <div class="col-md-auto">
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="Date2Filter" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              {{ inputs.6 }}
+          </button>
+          <ul class="dropdown-menu" id="Date2FilterMenu"></ul>
+        </div>
+      </div>
+      <div class="col">
+        <button class="btn btn-primary" type="submit" id="GenerateButton" onclick="changeHiddenInputsFilter()">Generate</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<br>
+
+
+
+
+<script>
+  function changeHiddenInputsFilter() {
+    document.getElementById("dashOpponent").value = document.getElementById("OpponentFilter").innerHTML.trim()
+    document.getElementById("dashFormat").value = document.getElementById("FormatFilter").innerHTML.trim()
+    document.getElementById("dashLimitedFormat").value = document.getElementById("LimitedFormatFilter").innerHTML.trim()
+    document.getElementById("dashDeck").value = document.getElementById("DeckFilter").innerHTML.trim()
+    document.getElementById("dashOppDeck").value = document.getElementById("OppDeckFilter").innerHTML.trim()
+    document.getElementById("dashDate1").value = document.getElementById("Date1Filter").innerHTML.trim()
+    document.getElementById("dashDate2").value = document.getElementById("Date2Filter").innerHTML.trim()
+  }
+</script>
+
+
+{% endblock %}
