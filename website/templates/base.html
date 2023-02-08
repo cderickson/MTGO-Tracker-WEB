@@ -501,28 +501,16 @@
                 <b>Import Data</b>
               </a>
               <ul class="dropdown-menu">
-<!--                 <li>
-                  <form action="/load" method="POST">
-                    <button type="submit" class="dropdown-item"><b>Load Data</b></button>
-                  </form>
-                </li> -->
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ImportModal" onclick=""><b>Import Data</b></a></li>
               </ul>
-            </li>
-            {% else %}
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('views.register') }}"><b>Register</b></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('views.login') }}"><b>Login</b></a>
             </li>
             {% endif %}
           </ul>
         </div>
 
-        {% if user.is_authenticated %}
         <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
           <ul class="navbar-nav ms-auto">
+        {% if user.is_authenticated %}
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <b>{{ user.email }}</b>
@@ -532,10 +520,16 @@
                 <li><a class="dropdown-item" href="{{ url_for('views.logout') }}"><b>Logout</b></a></li>
               </ul>
             </li>
+        {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('views.register') }}"><b>Register</b></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('views.login') }}"><b>Login</b></a>
+            </li>
+        {% endif %}
           </ul>
         </div>
-        {% endif %}
-
       </div>
     </nav>
 
