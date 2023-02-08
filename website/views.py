@@ -753,8 +753,21 @@ def remove():
 	db.session.commit()
 
 	flash(f'{match_size} Matches removed, {game_size} Games removed, {play_size} Plays removed.', category='success')
-	return redirect("/table/matches/1")
+	return redirect('/table/matches/1')
 
 @views.route('/profile')
 def profile():
 	return render_template('profile.html', user=current_user)
+
+@views.route('/edit_profile', methods=['POST'])
+def edit_profile():
+	new_email = request.form.get('ProfileEmailInputText')
+	new_name = request.form.get('ProfileNameInputText')
+	new_username = request.form.get('ProfileUsernameInputText').strip()
+
+	user = User.query.filter_by(id=current_user.id).first()
+	user.email = new_email
+	user.username = new_username
+	db.session.commit()
+	
+	return redirect('/profile')
