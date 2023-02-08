@@ -502,6 +502,20 @@
               </a>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#ImportModal" onclick=""><b>Import Data</b></a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.export') }}"><b>Export</b></a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <b>Dashboards</b>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{{ url_for('views.dashboards', dash_name='match_history') }}"><b>Match History</b></a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.dashboards', dash_name='match_stats') }}"><b>Match Stats</b></a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.dashboards', dash_name='game_stats') }}"><b>Game Stats</b></a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.dashboards', dash_name='play_stats') }}"><b>Play Stats</b></a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.dashboards', dash_name='opponents') }}"><b>Opponents</b></a></li>
+                <li><a class="dropdown-item" href="{{ url_for('views.dashboards', dash_name='card_data') }}"><b>Card Data</b></a></li>
               </ul>
             </li>
             {% endif %}
