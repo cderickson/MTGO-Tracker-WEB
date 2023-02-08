@@ -58,8 +58,6 @@ options = get_input_options()
 multifaced = get_multifaced_cards()
 all_decks = get_all_decks()
 
-print(options)
-
 views = Blueprint('views', __name__)
 
 @views.route('/')
@@ -117,11 +115,6 @@ def form():
 		return render_template('index.html', user=current_user)
 
 	return render_template('form.html', user=current_user, inputs=inputs)
-
-@views.route('/test', methods=['GET', 'POST'])
-def test():
-	table = Match.query.filter_by(user_id=current_user.id).order_by(Match.date).limit(25).all()
-	return render_template('test.html', user=current_user, table_name='matches', table=table)
 
 @views.route('/load', methods=['POST'])
 def load():
@@ -771,3 +764,48 @@ def edit_profile():
 	db.session.commit()
 	
 	return redirect('/profile')
+
+@views.route('/dashboards/<dash_name>', methods=['GET', 'POST'])
+def dashboards(dash_name):
+	inputs = ['Opponent', 'Format', 'Limited Format', 'Deck', 'Opp. Deck', 'Date1', 'Date2']
+	if request.method == 'POST':
+		dashOpponent = request.form.get('dashOpponent')
+		dashFormat = request.form.get('dashFormat')
+		dashLimitedFormat = request.form.get('dashLimitedFormat')
+		dashDeck = request.form.get('dashDeck')
+		dashOppDeck = request.form.get('dashOppDeck')
+		dashDate1 = request.form.get('dashDate1')
+		dashDate2 = request.form.get('dashDate2')
+		inputs = [dashOpponent, dashFormat, dashLimitedFormat, dashDeck, dashOppDeck, dashDate1, dashDate2]
+
+	return render_template('dashboards.html', user=current_user, dash_name=dash_name, inputs=inputs)
+	# if dash_name == 'match_history':
+	# 	return render_template('dashboards.html', user=current_user, dash_name=dash_name) 
+	# elif dash_name == 'match_stats':
+	# 	return render_template('dashboards.html', user=current_user, dash_name=dash_name) 
+	# elif dash_name == 'game_stats':
+	# 	return render_template('dashboards.html', user=current_user, dash_name=dash_name) 
+	# elif dash_name == 'play_stats':
+	# 	return render_template('dashboards.html', user=current_user, dash_name=dash_name) 
+	# elif dash_name == 'opponents':
+	# 	return render_template('dashboards.html', user=current_user, dash_name=dash_name) 
+	# elif dash_name == 'card_data':
+	# 	return render_template('dashboards.html', user=current_user, dash_name=dash_name) 
+
+@views.route('/filter_options')
+def filter_options():
+	return get_input_options()
+
+@views.route('/generate_plot', methods=['POST'])
+def generate_plot():
+	print(request.form)
+	dashOpponent = request.form.get('dashOpponent')
+	dashFormat = request.form.get('dashFormat')
+	dashLimitedFormat = request.form.get('dashLimitedFormat')
+	dashDeck = request.form.get('dashDeck')
+	dashOppDeck = request.form.get('dashOppDeck')
+	dashDate1 = request.form.get('dashDate1')
+	dashDate2 = request.form.get('dashDate2')
+	inputs = [dashOpponent, dashFormat, dashLimitedFormat, dashDeck, dashOppDeck, dashDate1, dashDate2]
+
+	return render_template('dashboards.html', user=current_user, dash_name=request.form.get('dashName'), inputs=inputs)
