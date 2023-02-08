@@ -1,6 +1,6 @@
 from flask import render_template, request, Blueprint, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, create_engine
+from sqlalchemy import func, create_engine, desc
 from flask_login import login_user, login_required, logout_user, current_user
 from datetime import datetime
 from .models import User, Match, Game, Play, Pick, Draft, GameActions, Removed
@@ -767,7 +767,18 @@ def edit_profile():
 
 @views.route('/dashboards/<dash_name>', methods=['GET', 'POST'])
 def dashboards(dash_name):
-	inputs = ['Opponent', 'Format', 'Limited Format', 'Deck', 'Opp. Deck', 'Date1', 'Date2']
+	def match_result(p1_wins, p2_wins):
+		if p1_wins == p2_wins:
+			return f'NA {p1_wins}-{p2_wins}'
+		elif p1_wins > p2_wins:
+			return f'Win {p1_wins}-{p2_wins}'
+		elif p2_wins > p1_wins:
+			return f'Loss {p1_wins}-{p2_wins}'
+	def format_string(fmt, limited_format):
+		if fmt in options['Limited Formats']:
+			return f'{fmt}: {limited_format}'
+		return f'{fmt}'
+
 	if request.method == 'POST':
 		dashOpponent = request.form.get('dashOpponent')
 		dashFormat = request.form.get('dashFormat')
@@ -776,7 +787,28 @@ def dashboards(dash_name):
 		dashOppDeck = request.form.get('dashOppDeck')
 		dashDate1 = request.form.get('dashDate1')
 		dashDate2 = request.form.get('dashDate2')
-		inputs = [dashOpponent, dashFormat, dashLimitedFormat, dashDeck, dashOppDeck, dashDate1, dashDate2]
+	else:
+		dashOpponent = 'Opponent'
+		dashFormat = 'Format'
+		dashLimitedFormat = 'Limited Format'
+		dashDeck = 'Deck'
+		dashOppDeck = 'Opp. Deck'
+		dashDate1 = 'Date1'
+		dashDate2 = 'Date2'
+	inputs = [dashOpponent, dashFormat, dashLimitedFormat, dashDeck, dashOppDeck, dashDate1, dashDate2]
+
+	if dash_name == 'match_history':
+		table = Match.query.filter_by(user_id=current_user.id, p1=current_user.username)
+		if dashFormat != 'Format':
+			table = table.filter_by(format=dashFormat)
+		table = table.order_by(desc(Match.match_id)).limit(25)
+
+		df = pd.DataFrame([i.as_dict() for i in table.all()])
+		df['Match Result'] = df.apply(lambda x: match_result(p1_wins=x['p1_wins'], p2_wins=x['p2_wins']), axis=1)
+		df['Match Format'] = df.apply(lambda x: format_string(fmt=x['format'], limited_format=x['limited_format']), axis=1)
+		df = df.rename(columns={'p2':'Opponent', 'p2_subarch':'Opp. Deck', 'p1_subarch':'Deck', 'date':'Date'})
+		df = df[['Date','Opponent','Deck','Opp. Deck','Match Result','Match Format']]
+		return render_template('dashboards.html', user=current_user, dash_name=dash_name, inputs=inputs, table=df)
 
 	return render_template('dashboards.html', user=current_user, dash_name=dash_name, inputs=inputs)
 	# if dash_name == 'match_history':
