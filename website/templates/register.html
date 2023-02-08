@@ -9,21 +9,6 @@
             <div class="card-body">
               <div class="row">
 
-
-                  {% if error_message %}
-                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {{ error_message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>
-                  {% endif %}
-
-                  {% if success_message %}
-                  <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ success_message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>
-                  {% endif %}
-
                   <form action="/form" method="POST">
                     <div class="mb-3">
                       <label for="reg_email" class="form-label">Email address</label>
@@ -44,7 +29,6 @@
                     </div>
                     <button type="submit" class="btn btn-secondary">Submit</button>
                   </form>
-
 
               </div>
             </div>
