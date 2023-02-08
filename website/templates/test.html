@@ -4,10 +4,10 @@
 
   <style>
     td {
-      font-size: 10pt;
+      font-size: 9pt;
     }
     th {
-      font-size: 10pt;
+      font-size: 9pt;
     }
     table tr.active {
       background: #3c3c3c;
@@ -25,11 +25,8 @@
       <div class="col text-end">
         <button disabled id="ReviseButton" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#ReviseModal">Revise Record</button>
       </div>
-      <div class="col-md-auto">
-        <button disabled id="RemoveButton" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#RemoveModal">Remove Record</button>
-      </div>
       <div class="col">
-        <button disabled id="ExportButton" type="button" class="btn btn-secondary">Export</button>
+        <button disabled id="RemoveButton" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#RemoveModal">Remove Record</button>
       </div>
     </div>
   {% endif %}
@@ -565,6 +562,7 @@
           };
           document.getElementById("FormatMenu").innerHTML += '<li><a class="dropdown-item" onclick="showFormat(this)">NA</a></li>';
           document.getElementById("FormatMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showFormatMulti(this)">NA</a></li>';
+          document.getElementById("MatchTypeMenu").innerHTML += '<li><a class="dropdown-item" onclick="showMatchType(this)">NA</a></li>';
           document.getElementById("MatchTypeMenuMulti").innerHTML += '<li><a class="dropdown-item" onclick="showMatchTypeMulti(this)">NA</a></li>';
         });
       });     
