@@ -693,5 +693,27 @@
     }
   </script>
   {% endif %}
-
+  <script>
+    $(document).ready(function() {
+      $(".jsTableRow").dblclick(function(){
+        var str = $(this).text().trim().replace(/\s\s+/g, ' ').split(" ")
+        var table = $("h1").text().split(" ")[0]
+        if (table == "Matches"){
+          window.location.href = '/table/games/'+str[0]+'/0'
+        } else if (table == "Games"){
+          window.location.href = '/table/plays/'+str[0]+'/'+str[3]
+        } else if (table == "Drafts"){
+          window.location.href = '/table/picks/'+str[0]+'/0'
+        }
+      });
+    });
+  </script>
+  <script>
+    $(document).ready(function(){
+        $(".jsTableRow").click(function(){
+            $(this).toggleClass("active");
+        });
+    });
+  </script>
+    
 {% endblock %}
