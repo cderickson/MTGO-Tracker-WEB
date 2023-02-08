@@ -2,45 +2,54 @@
 
 {% block content %}
 
-<div class="container">
-
-  {% if error_message %}
-  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    {{ error_message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-  {% endif %}
-
-  {% if success_message %}
-  <div class="alert alert-success alert-dismissible fade show" role="alert">
-    {{ success_message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-  {% endif %}
-
-  <form action="/form" method="POST">
-    <div class="mb-3">
-      <label for="reg_email" class="form-label">Email address</label>
-      <input type="email" class="form-control" id="reg_email" aria-describedby="emailHelp" name="email" placeholder="Email" value="{{ inputs.0 }}">
-      <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-    </div>
-    <div class="mb-3">
-      <label for="reg_pwd" class="form-label">Password</label>
-      <input type="password" class="form-control" id="reg_pwd" name="pwd" placeholder="Password" value="{{ inputs.1 }}">
-    </div>
-    <div class="mb-3">
-      <label for="reg_pwd" class="form-label">Confirm Password</label>
-      <input type="password" class="form-control" id="reg_pwd_confirm" name="pwd_confirm" placeholder="Confirm Password" value="{{ inputs.2 }}">
-    </div>
-    <div class="mb-3">
-      <label for="reg_hero" class="form-label">MTGO Username</label>
-      <input type="text" class="form-control" id="reg_hero" name="hero" placeholder="MTGO Username" value="{{ inputs.3 }}">
-    </div>
-    <button type="submit" class="btn btn-secondary">Submit</button>
-  </form>
-
-</div>
+    <div class="container">
+      <div class="row justify-content-md-center">
+        <div class="col-lg-8 mb-3">
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="row">
 
 
-    
+                  {% if error_message %}
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ error_message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  {% endif %}
+
+                  {% if success_message %}
+                  <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ success_message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  {% endif %}
+
+                  <form action="/form" method="POST">
+                    <div class="mb-3">
+                      <label for="reg_email" class="form-label">Email address</label>
+                      <input type="email" class="form-control" id="reg_email" aria-describedby="emailHelp" name="email" placeholder="Email" value="{{ inputs.0 }}">
+                      <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="reg_pwd" class="form-label">Password</label>
+                      <input type="password" class="form-control" id="reg_pwd" name="pwd" placeholder="Password" value="{{ inputs.1 }}">
+                    </div>
+                    <div class="mb-3">
+                      <label for="reg_pwd" class="form-label">Confirm Password</label>
+                      <input type="password" class="form-control" id="reg_pwd_confirm" name="pwd_confirm" placeholder="Confirm Password" value="{{ inputs.2 }}">
+                    </div>
+                    <div class="mb-3">
+                      <label for="reg_hero" class="form-label">MTGO Username</label>
+                      <input type="text" class="form-control" id="reg_hero" name="hero" placeholder="MTGO Username" value="{{ inputs.3 }}">
+                    </div>
+                    <button type="submit" class="btn btn-secondary">Submit</button>
+                  </form>
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>    
 {% endblock %}
