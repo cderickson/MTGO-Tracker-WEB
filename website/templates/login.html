@@ -4,21 +4,31 @@
 
 <div class="container">
 
-  <form action="/login" method="POST">
-    <div class="mb-3">
-      <label for="reg_email" class="form-label">Email address</label>
-      <input type="email" class="form-control" id="login_email" aria-describedby="emailHelp" name="login_email" placeholder="Email">
-    </div>
-    <div class="mb-3">
-      <label for="reg_pwd" class="form-label">Password</label>
-      <input type="password" class="form-control" id="login_pwd" name="login_pwd" placeholder="Password">
-    </div>
-    <div class="mb-3 form-check">
-      <input type="checkbox" class="form-check-input" id="login_check" name="login_check">
-      <label class="form-check-label" for="login_check">Check</label>
-    </div>
-    <button type="submit" class="btn btn-secondary">Submit</button>
-  </form>
+      <div class="row justify-content-md-center">
+        <div class="col-lg-8 mb-3">
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="row">
+                <form action="/login" method="POST">
+                  <div class="mb-3">
+                    <label for="reg_email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="login_email" aria-describedby="emailHelp" name="login_email" placeholder="Email">
+                  </div>
+                  <div class="mb-3">
+                    <label for="reg_pwd" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="login_pwd" name="login_pwd" placeholder="Password">
+                  </div>
+                  <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="login_check" name="login_check">
+                    <label class="form-check-label" for="login_check">Check</label>
+                  </div>
+                  <button type="submit" class="btn btn-secondary">Submit</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
 </div>
     
