@@ -2,6 +2,27 @@
 
 {% block content %}
 
+<style>
+  td {
+    font-size: 10pt;
+  }
+  th {
+    font-size: 10pt;
+  }
+  table tr.active {
+    background: #3c3c3c;
+    color: #f9f9f9;
+  }
+  table tr.rowGreen {
+    background: #a3ffb1;
+  }
+  table tr.rowRed {
+    background: #ffa3a3;
+  }
+  table tr {
+    background: #f0f0f0;
+</style>
+
 <div class="container-fluid">
   <h1><center>
     {% if (dash_name) == 'match_history' %}
@@ -22,8 +43,10 @@
     {% if (dash_name) == 'card_data' %}
       Card Data
     {% endif %}
-  </center></h1><br>
+  </center></h1>
+</div><br>
 
+<div class="container-fluid">
   <form action="/dashboards/{{ dash_name }}" method="POST">
     <input type="hidden" name="dashName" id="dashName" value="{{ dash_name }}">
     <input type="hidden" name="dashOpponent" id="dashOpponent" value="NA">
@@ -96,10 +119,80 @@
     </div>
   </form>
 </div>
-
 <br>
 
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <table class="table table-sm w-auto table-bordered user-select-none">
+      <thead class="table-dark">
+        <tr>
+          {% if (dash_name) == 'match_history' %}
+          <th scope="col" class="text-center">Date</th>
+          <th scope="col" class="text-center">Opponent</th>
+          <th scope="col" class="text-center">Deck</th>
+          <th scope="col" class="text-center">Opp. Deck</th>
+          <th scope="col" class="text-center">Match Result</th>
+          <th scope="col" class="text-center">Match Format</th>
+          {% endif %}
+          {% if (dash_name) == 'match_stats' %}
 
+          {% endif %}
+          {% if (dash_name) == 'game_stats' %}
+
+          {% endif %}
+          {% if (dash_name) == 'play_stats' %}
+
+          {% endif %}
+          {% if (dash_name) == 'opponents' %}
+
+          {% endif %}
+          {% if (dash_name) == 'card_data' %}
+
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% if table is defined %}
+          {% for key,value in table.iterrows() %}
+            {% if (dash_name) == 'match_history' %}
+              {% if 'Win' in value['Match Result'] %}
+              <tr class="rowGreen">
+              {% endif %}
+              {% if 'Loss' in value['Match Result'] %}
+              <tr class="rowRed">
+              {% endif %}
+              {% if 'NA' in value['Match Result'] %}
+              <tr class="jsTableRow">
+              {% endif %}
+                <td class="text-center"><nobr>{{ value['Date'] }}</nobr></td>
+                <td class="text-center">{{ value['Opponent'] }}</td>
+                <td class="text-center">{{ value['Deck'] }}</td>
+                <td class="text-center">{{ value['Opp. Deck'] }}</td>
+                <td class="text-center">{{ value['Match Result'] }}</td>
+                <td class="text-center">{{ value['Match Format'] }}</td>
+              </tr>
+            {% endif %}
+            {% if (dash_name) == 'match_stats' %}
+
+            {% endif %}
+            {% if (dash_name) == 'game_stats' %}
+
+            {% endif %}
+            {% if (dash_name) == 'play_stats' %}
+
+            {% endif %}
+            {% if (dash_name) == 'opponents' %}
+
+            {% endif %}
+            {% if (dash_name) == 'card_data' %}
+
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
 
 
 <script>
