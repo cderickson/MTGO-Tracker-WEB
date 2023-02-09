@@ -438,6 +438,11 @@
         });      
       };
       function importHidden(label) {document.getElementById("dataToImport").value = label;}
+      $(document).ready(function(){
+          $(".jsTableRow").click(function(){
+              $(this).toggleClass("active");
+          });
+      });
     </script>
 
   </head>
