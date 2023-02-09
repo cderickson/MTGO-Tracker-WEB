@@ -21,6 +21,11 @@
   }
   table tr {
     background: #f0f0f0;
+  }
+  .dropdown-menu {
+    max-height: 25vh;
+    overflow-y: scroll;
+  }
 </style>
 
 <div class="container-fluid">
@@ -62,7 +67,9 @@
           <button class="btn btn-secondary dropdown-toggle" type="button" id="OpponentFilter" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
               {{ inputs.0 }}
           </button>
-          <ul class="dropdown-menu" id="OpponentFilterMenu"></ul>
+          <ul class="dropdown-menu" id="OpponentFilterMenu">
+            <li><a class="dropdown-item" onclick="showOpponentFilter(this)">Opponent </a></li>
+          </ul>
         </div>
       </div>
       <div class="col-md-auto">
@@ -70,7 +77,9 @@
           <button class="btn btn-secondary dropdown-toggle" type="button" id="FormatFilter" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
               {{ inputs.1 }}
           </button>
-          <ul class="dropdown-menu" id="FormatFilterMenu"></ul>
+          <ul class="dropdown-menu" id="FormatFilterMenu">
+            <li><a class="dropdown-item" onclick="showFormatFilter(this)">Format </a></li>
+          </ul>
         </div>
       </div>
       <div class="col-md-auto">
@@ -78,7 +87,9 @@
           <button class="btn btn-secondary dropdown-toggle" type="button" id="LimitedFormatFilter" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
               {{ inputs.2 }}
           </button>
-          <ul class="dropdown-menu" id="LimitedFormatFilterMenu"></ul>
+          <ul class="dropdown-menu" id="LimitedFormatFilterMenu">
+            <li><a class="dropdown-item" onclick="showLimitedFormatFilter(this)">Limited Format </a></li>
+          </ul>
         </div>
       </div>
       <div class="col-md-auto">
@@ -86,7 +97,9 @@
           <button class="btn btn-secondary dropdown-toggle" type="button" id="DeckFilter" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
               {{ inputs.3 }}
           </button>
-          <ul class="dropdown-menu" id="DeckFilterMenu"></ul>
+          <ul class="dropdown-menu" id="DeckFilterMenu">
+            <li><a class="dropdown-item" onclick="showDeckFilter(this)">Deck </a></li>
+          </ul>
         </div>
       </div>
       <div class="col-md-auto">
@@ -94,7 +107,9 @@
           <button class="btn btn-secondary dropdown-toggle" type="button" id="OppDeckFilter" value="NA" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
               {{ inputs.4 }}
           </button>
-          <ul class="dropdown-menu" id="OppDeckFilterMenu"></ul>
+          <ul class="dropdown-menu" id="OppDeckFilterMenu">
+            <li><a class="dropdown-item" onclick="showOppDeckFilter(this)">Opp. Deck </a></li>
+          </ul>
         </div>
       </div>
       <div class="col-md-auto">
@@ -205,7 +220,34 @@
     document.getElementById("dashDate1").value = document.getElementById("Date1Filter").innerHTML.trim()
     document.getElementById("dashDate2").value = document.getElementById("Date2Filter").innerHTML.trim()
   }
+  function showOpponentFilter(item) {document.getElementById("OpponentFilter").innerHTML = item.innerHTML;}
+  function showFormatFilter(item) {document.getElementById("FormatFilter").innerHTML = item.innerHTML;}
+  function showLimitedFormatFilter(item) {document.getElementById("LimitedFormatFilter").innerHTML = item.innerHTML;}
+  function showDeckFilter(item) {document.getElementById("DeckFilter").innerHTML = item.innerHTML;}
+  function showOppDeckFilter(item) {document.getElementById("OppDeckFilter").innerHTML = item.innerHTML;}
 </script>
-
+<script>
+  window.onload = function(){
+    fetch('/filter_options').then(function(response){
+      response.json().then(function(data){
+        for (var i = 0; i < data["Opponent"].length; i++){
+          document.getElementById("OpponentFilterMenu").innerHTML += '<li><a class="dropdown-item" onclick="showOpponentFilter(this)">'+data["Opponent"][i]+' </a></li>';
+        };
+        for (var i = 0; i < data["Format"].length; i++){
+          document.getElementById("FormatFilterMenu").innerHTML += '<li><a class="dropdown-item" onclick="showFormatFilter(this)">'+data["Format"][i]+' </a></li>';
+        };
+        for (var i = 0; i < data["Limited Format"].length; i++){
+          document.getElementById("LimitedFormatFilterMenu").innerHTML += '<li><a class="dropdown-item" onclick="showLimitedFormatFilter(this)">'+data["Limited Format"][i]+' </a></li>';
+        };
+        for (var i = 0; i < data["Deck"].length; i++){
+          document.getElementById("DeckFilterMenu").innerHTML += '<li><a class="dropdown-item" onclick="showDeckFilter(this)">'+data["Deck"][i]+' </a></li>';
+        };
+        for (var i = 0; i < data["Opp. Deck"].length; i++){
+          document.getElementById("OppDeckFilterMenu").innerHTML += '<li><a class="dropdown-item" onclick="showOppDeckFilter(this)">'+data["Opp. Deck"][i]+' </a></li>';
+        };
+      });
+    });     
+  };
+</script>
 
 {% endblock %}
