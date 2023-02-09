@@ -576,7 +576,7 @@
       $(".jsTableRow").click(function(){
         var myarray = [];
         $(".active").each(function() {
-            myarray.push($(this).text().trim().replace(/\s\s+/g, ' ').split(" "));
+          myarray.push($(this).text().trim().replace(/\s\s+/g, ' ').split(" "));
         });
         match_ids = myarray.map(innerArray => innerArray[0]);
         if (myarray.length === 1){
@@ -708,12 +708,5 @@
       });
     });
   </script>
-  <script>
-    $(document).ready(function(){
-        $(".jsTableRow").click(function(){
-            $(this).toggleClass("active");
-        });
-    });
-  </script>
-    
+
 {% endblock %}
