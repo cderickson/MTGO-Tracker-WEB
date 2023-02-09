@@ -798,6 +798,7 @@ def dashboards(dash_name):
 	inputs = [dashOpponent, dashFormat, dashLimitedFormat, dashDeck, dashOppDeck, dashDate1, dashDate2]
 
 	if dash_name == 'match_history':
+		print('x'+dashOpponent+'x')
 		table = Match.query.filter_by(user_id=current_user.id, p1=current_user.username)
 		if dashFormat != 'Format':
 			table = table.filter_by(format=dashFormat)
@@ -826,7 +827,17 @@ def dashboards(dash_name):
 
 @views.route('/filter_options')
 def filter_options():
-	return get_input_options()
+	filter_options_dict = {}
+	table = Match.query.filter_by(user_id=current_user.id, p1=current_user.username)
+
+	filter_options_dict['Opponent'] = [i.p2 for i in table.with_entities(Match.p2).distinct().order_by(Match.p2).all()]
+	filter_options_dict['Format'] = [i.format for i in table.with_entities(Match.format).distinct().order_by(Match.format).all()]
+	filter_options_dict['Limited Format'] = [i.limited_format for i in table.with_entities(Match.limited_format).distinct().order_by(Match.limited_format).all()]
+	filter_options_dict['Deck'] = [i.p1_subarch for i in table.with_entities(Match.p1_subarch).distinct().order_by(Match.p1_subarch).all()]
+	filter_options_dict['Opp. Deck'] = [i.p2_subarch for i in table.with_entities(Match.p2_subarch).distinct().order_by(Match.p2_subarch).all()]
+	#filter_options_dict['Date1'] = [i.p2 for i in table.with_entities(Match.p2).distinct().order_by(Match.p2).all()]
+	#filter_options_dict['Date2'] = [i.p2 for i in table.with_entities(Match.p2).distinct().order_by(Match.p2).all()]
+	return filter_options_dict
 
 @views.route('/generate_plot', methods=['POST'])
 def generate_plot():
