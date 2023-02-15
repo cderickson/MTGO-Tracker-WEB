@@ -798,7 +798,6 @@ def dashboards(dash_name):
 	inputs = [dashOpponent, dashFormat, dashLimitedFormat, dashDeck, dashOppDeck, dashDate1, dashDate2]
 
 	if dash_name == 'match_history':
-		print('x'+dashOpponent+'x')
 		table = Match.query.filter_by(user_id=current_user.id, p1=current_user.username)
 		if dashFormat != 'Format':
 			table = table.filter_by(format=dashFormat)
