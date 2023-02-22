@@ -1,6 +1,6 @@
 from flask import render_template, request, Blueprint, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, create_engine, desc
+from sqlalchemy import func, create_engine, desc, select
 from flask_login import login_user, login_required, logout_user, current_user
 from datetime import datetime
 from .models import User, Match, Game, Play, Pick, Draft, GameActions, Removed
@@ -797,18 +797,104 @@ def dashboards(dash_name):
 		dashDate2 = 'Date2'
 	inputs = [dashOpponent, dashFormat, dashLimitedFormat, dashDeck, dashOppDeck, dashDate1, dashDate2]
 
-	if dash_name == 'match_history':
-		table = Match.query.filter_by(user_id=current_user.id, p1=current_user.username)
-		if dashFormat != 'Format':
-			table = table.filter_by(format=dashFormat)
-		table = table.order_by(desc(Match.match_id)).limit(25)
+	table = Match.query.filter_by(user_id=current_user.id, p1=current_user.username)
+	if dashOpponent != 'Opponent':
+		table = table.filter_by(p2=dashOpponent)
+	if dashFormat != 'Format':
+		table = table.filter_by(format=dashFormat)
+	if dashLimitedFormat != 'Limited Format':
+		table = table.filter_by(limited_format=dashLimitedFormat)
+	if dashDeck != 'Deck':
+		table = table.filter_by(p1_subarch=dashDeck)
+	if dashOppDeck != 'Opp. Deck':
+		table = table.filter_by(p2_subarch=dashOppDeck)
 
+	if dash_name == 'match_history':
+		pass
+	elif dash_name == 'match_stats':
+		pass
+	elif dash_name == 'game_stats':
+		table = table.join(Game, (Game.user_id == Match.user_id) & (Game.match_id == Match.match_id) & (Game.p1 == Match.p1)).add_entity(Game)
+	elif dash_name == 'play_stats':
+		pass
+	elif dash_name == 'opponents':
+		pass
+	elif dash_name == 'card_data':
+		pass
+
+	if dash_name == 'match_history':
+		table = table.order_by(desc(Match.match_id)).limit(25)
 		df = pd.DataFrame([i.as_dict() for i in table.all()])
 		df['Match Result'] = df.apply(lambda x: match_result(p1_wins=x['p1_wins'], p2_wins=x['p2_wins']), axis=1)
 		df['Match Format'] = df.apply(lambda x: format_string(fmt=x['format'], limited_format=x['limited_format']), axis=1)
 		df = df.rename(columns={'p2':'Opponent', 'p2_subarch':'Opp. Deck', 'p1_subarch':'Deck', 'date':'Date'})
 		df = df[['Date','Opponent','Deck','Opp. Deck','Match Result','Match Format']]
-		return render_template('dashboards.html', user=current_user, dash_name=dash_name, inputs=inputs, table=df)
+		return render_template('dashboards.html', user=current_user, dash_name=dash_name, inputs=inputs, table=[df])
+	elif dash_name == 'match_stats':
+		df = pd.DataFrame([i.as_dict() for i in table.all()])
+		df['Wins'] = df.apply(lambda x: 1 if x['match_winner'] == 'P1' else 0, axis=1)
+		df['Losses'] = df.apply(lambda x: 1 if x['match_winner'] == 'P2' else 0, axis=1)
+		df['Roll_Wins'] = df.apply(lambda x: 1 if x['roll_winner'] == 'P1' else 0, axis=1)
+		df['Roll_Losses'] = df.apply(lambda x: 1 if x['roll_winner'] == 'P2' else 0, axis=1)
+
+		df1 = df.groupby(['format']).agg({'Wins':'sum', 'Losses':'sum'}).reset_index()
+		df1 = df1.rename(columns={'format':'Description'})
+		df1.loc[-1] = pd.concat([pd.Series({'Description':'Match Format'}), df[['Wins','Losses']].sum()], axis=0)
+		df1.index = df1.index + 1
+		df1 = df1.sort_index()
+		df1['Match Win%'] = df1.apply(lambda x: round( (x['Wins']/(x['Wins']+x['Losses']))*100, 1), axis=1)
+
+		df2 = df.groupby(['match_type']).agg({'Wins':'sum', 'Losses':'sum'}).reset_index()
+		df2 = df2.rename(columns={'match_type':'Description'})
+		df2.loc[-1] = pd.concat([pd.Series({'Description':'Match Type'}), df[['Wins','Losses']].sum()], axis=0)
+		df2.index = df2.index + 1
+		df2 = df2.sort_index()
+		df2['Match Win%'] = df2.apply(lambda x: round( (x['Wins']/(x['Wins']+x['Losses']))*100, 1), axis=1)
+
+		df3 = df.groupby(['p1_subarch']).agg({'p1':'count', 'Wins':'sum', 'Losses':'sum'}).reset_index()
+		df3 = df3.rename(columns={'p1':'Share', 'p1_subarch':'Decks'})
+		df3['Match Win%'] = df3.apply(lambda x: round( (x['Wins']/(x['Wins']+x['Losses']))*100, 1), axis=1)
+		df3['Share'] = df3.apply(lambda x: str(x['Share']) + ' - (' + str(round( (x['Share']/df3['Share'].sum())*100)) + '%)', axis=1)
+
+		df4 = df.groupby(['p2_subarch']).agg({'p2':'count', 'Wins':'sum', 'Losses':'sum'}).reset_index()
+		df4 = df4.rename(columns={'p2':'Share', 'p2_subarch':'Decks'})
+		df4['Win% Against'] = df4.apply(lambda x: round( (x['Wins']/(x['Wins']+x['Losses']))*100, 1), axis=1)
+		df4['Share'] = df4.apply(lambda x: str(x['Share']) + ' - (' + str(round( (x['Share']/df4['Share'].sum())*100)) + '%)', axis=1)
+
+		df5 = pd.DataFrame({'Die Rolls':['Hero - Mean', 'Opp. - Mean', '-', 'Hero - Win%'], '-':[round(df['p1_roll'].mean(),2), round(df['p2_roll'].mean(),2), '-', round((df['Roll_Wins'].sum()/(df['Roll_Wins'].sum()+df['Roll_Losses'].sum())*100 ),1)]})
+		return render_template('dashboards.html', user=current_user, dash_name=dash_name, inputs=inputs, table=[df1, df2, df3, df4, df5])
+	elif dash_name == 'game_stats':
+		df = pd.DataFrame([i[0].as_dict() | i[1].as_dict() for i in table.all()])
+		df['PD_Label'] = df.apply(lambda x: 'Play' if x['on_play'] == 'P1' else 'Draw', axis=1)
+		df['PD_Label2'] = 'Overall'
+		df['Game_Label'] = df.apply(lambda x: 'Game 1' if x['game_num'] == 1 else ('Game 2' if x['game_num'] == 2 else ('Game 3' if x['game_num'] == 3 else 0)), axis=1)
+		df['Game_Label2'] = 'All Games'
+		df['Wins'] = df.apply(lambda x: 1 if x['game_winner'] == 'P1' else 0, axis=1)
+		df['Losses'] = df.apply(lambda x: 1 if x['game_winner'] == 'P2' else 0, axis=1)
+
+		df1 = df.groupby(['Game_Label', 'PD_Label']).agg({'Wins':'sum', 'Losses':'sum', 'p1':'count', 'p1_mulls':'mean', 'p2_mulls':'mean', 'turns':'mean'}).reset_index()
+		df1_total = df.groupby(['Game_Label', 'PD_Label2']).agg({'Wins':'sum', 'Losses':'sum', 'p1':'count', 'p1_mulls':'mean', 'p2_mulls':'mean', 'turns':'mean'}).reset_index()
+		df1_total = df1_total.rename(columns={'PD_Label2':'PD_Label'})
+		df2 = df.groupby(['Game_Label2', 'PD_Label']).agg({'Wins':'sum', 'Losses':'sum', 'p1':'count', 'p1_mulls':'mean', 'p2_mulls':'mean', 'turns':'mean'}).reset_index()
+		df2_total = df.groupby(['Game_Label2', 'PD_Label2']).agg({'Wins':'sum', 'Losses':'sum', 'p1':'count', 'p1_mulls':'mean', 'p2_mulls':'mean', 'turns':'mean'}).reset_index()
+		df2 = df2.rename(columns={'Game_Label2':'Game_Label', 'PD_Label2':'PD_Label'})
+		df2_total = df2_total.rename(columns={'Game_Label2':'Game_Label', 'PD_Label2':'PD_Label'})
+		df3 = pd.concat([df1, df1_total, df2, df2_total]).reset_index(drop=True)
+		df3['p1_mulls'] = df3.apply(lambda x: round(x['p1_mulls'],2), axis=1)
+		df3['p2_mulls'] = df3.apply(lambda x: round(x['p2_mulls'],2), axis=1)
+		df3['turns'] = df3.apply(lambda x: round(x['turns'],2), axis=1)
+		df3['Win%'] = df3.apply(lambda x: round( (x['Wins']/(x['Wins']+x['Losses']))*100, 1), axis=1)
+		df3['Ordered'] = pd.Categorical(df3['PD_Label'], categories=['Play', 'Draw', 'Overall'], ordered=True)
+		df3 = df3.rename(columns={'p1':'Total', 'p1_mulls':'Mulls/G', 'p2_mulls':'Opp Mulls/G', 'turns':'Turns/G'})
+		df3 = df3.sort_values(['Game_Label', 'Ordered'], ascending=True).drop('Ordered', axis=1).reset_index(drop=True)
+
+		return render_template('dashboards.html', user=current_user, dash_name=dash_name, inputs=inputs, table=[df3])
+	elif dash_name == 'play_stats':
+		pass 
+	elif dash_name == 'opponents':
+		pass 
+	elif dash_name == 'card_data':
+		pass 
 
 	return render_template('dashboards.html', user=current_user, dash_name=dash_name, inputs=inputs)
 	# if dash_name == 'match_history':
