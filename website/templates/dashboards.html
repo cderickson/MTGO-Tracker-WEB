@@ -20,7 +20,10 @@
     background: #ffa3a3;
   }
   table tr {
-    background: #f0f0f0;
+    background: #CBCBCB;
+  }
+  table tr.rowWhite {
+    background: #ffffff;
   }
   .dropdown-menu {
     max-height: 25vh;
@@ -136,24 +139,66 @@
 </div>
 <br>
 
+{% if table is defined %}
+{% for t in table %}
 <div class="container-fluid">
   <div class="row justify-content-center">
     <table class="table table-sm w-auto table-bordered user-select-none">
       <thead class="table-dark">
         <tr>
+          {% for i in t.columns %}
+          <th scope="col" class="text-center">{{ i }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for key,value in t.iterrows() %}
           {% if (dash_name) == 'match_history' %}
-          <th scope="col" class="text-center">Date</th>
-          <th scope="col" class="text-center">Opponent</th>
-          <th scope="col" class="text-center">Deck</th>
-          <th scope="col" class="text-center">Opp. Deck</th>
-          <th scope="col" class="text-center">Match Result</th>
-          <th scope="col" class="text-center">Match Format</th>
+            {% if 'Win' in value['Match Result'] %}
+            <tr class="rowGreen">
+            {% endif %}
+            {% if 'Loss' in value['Match Result'] %}
+            <tr class="rowRed">
+            {% endif %}
+            {% if 'NA' in value['Match Result'] %}
+            <tr class="jsTableRow">
+            {% endif %}
+              <td class="text-center"><nobr>{{ value['Date'] }}</nobr></td>
+              <td class="text-center">{{ value['Opponent'] }}</td>
+              <td class="text-center">{{ value['Deck'] }}</td>
+              <td class="text-center">{{ value['Opp. Deck'] }}</td>
+              <td class="text-center">{{ value['Match Result'] }}</td>
+              <td class="text-center">{{ value['Match Format'] }}</td>
+            </tr>
           {% endif %}
+
           {% if (dash_name) == 'match_stats' %}
-
+            <tr>
+              <td>{{ value[0] }}</td>
+            {% for j in value[1:] %}
+              <td class="text-center">{{ j }}</td>
+            {% endfor %}
+            </tr>
           {% endif %}
-          {% if (dash_name) == 'game_stats' %}
 
+          {% if (dash_name) == 'game_stats' %}
+            {% if 'All Games' in value['Game_Label'] %}
+            <tr>
+            {% endif %}
+            {% if 'Game 1' in value['Game_Label'] %}
+            <tr class="rowWhite">
+            {% endif %}
+            {% if 'Game 2' in value['Game_Label'] %}
+            <tr>
+            {% endif %}
+            {% if 'Game 3' in value['Game_Label'] %}
+            <tr class="rowWhite">
+            {% endif %}
+              <td>{{ value[0] }}</td>
+            {% for j in value[1:] %}
+              <td class="text-center">{{ j }}</td>
+            {% endfor %}
+            </tr>
           {% endif %}
           {% if (dash_name) == 'play_stats' %}
 
@@ -164,51 +209,13 @@
           {% if (dash_name) == 'card_data' %}
 
           {% endif %}
-        </tr>
-      </thead>
-      <tbody>
-        {% if table is defined %}
-          {% for key,value in table.iterrows() %}
-            {% if (dash_name) == 'match_history' %}
-              {% if 'Win' in value['Match Result'] %}
-              <tr class="rowGreen">
-              {% endif %}
-              {% if 'Loss' in value['Match Result'] %}
-              <tr class="rowRed">
-              {% endif %}
-              {% if 'NA' in value['Match Result'] %}
-              <tr class="jsTableRow">
-              {% endif %}
-                <td class="text-center"><nobr>{{ value['Date'] }}</nobr></td>
-                <td class="text-center">{{ value['Opponent'] }}</td>
-                <td class="text-center">{{ value['Deck'] }}</td>
-                <td class="text-center">{{ value['Opp. Deck'] }}</td>
-                <td class="text-center">{{ value['Match Result'] }}</td>
-                <td class="text-center">{{ value['Match Format'] }}</td>
-              </tr>
-            {% endif %}
-            {% if (dash_name) == 'match_stats' %}
-
-            {% endif %}
-            {% if (dash_name) == 'game_stats' %}
-
-            {% endif %}
-            {% if (dash_name) == 'play_stats' %}
-
-            {% endif %}
-            {% if (dash_name) == 'opponents' %}
-
-            {% endif %}
-            {% if (dash_name) == 'card_data' %}
-
-            {% endif %}
-          {% endfor %}
-        {% endif %}
+        {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
-
+{% endfor %}
+{% endif %}
 
 <script>
   function changeHiddenInputsFilter() {
