@@ -780,6 +780,7 @@ def dashboards(dash_name):
 		return f'{fmt}'
 
 	if request.method == 'POST':
+		dashCard = request.form.get('dashCard')
 		dashOpponent = request.form.get('dashOpponent')
 		dashFormat = request.form.get('dashFormat')
 		dashLimitedFormat = request.form.get('dashLimitedFormat')
@@ -788,6 +789,7 @@ def dashboards(dash_name):
 		dashDate1 = request.form.get('dashDate1')
 		dashDate2 = request.form.get('dashDate2')
 	else:
+		dashCard = 'Card'
 		dashOpponent = 'Opponent'
 		dashFormat = 'Format'
 		dashLimitedFormat = 'Limited Format'
@@ -795,7 +797,7 @@ def dashboards(dash_name):
 		dashOppDeck = 'Opp. Deck'
 		dashDate1 = 'Date1'
 		dashDate2 = 'Date2'
-	inputs = [dashOpponent, dashFormat, dashLimitedFormat, dashDeck, dashOppDeck, dashDate1, dashDate2]
+	inputs = [dashCard, dashOpponent, dashFormat, dashLimitedFormat, dashDeck, dashOppDeck, dashDate1, dashDate2]
 
 	table = Match.query.filter_by(user_id=current_user.id, p1=current_user.username)
 	if dashOpponent != 'Opponent':
@@ -816,11 +818,15 @@ def dashboards(dash_name):
 	elif dash_name == 'game_stats':
 		table = table.join(Game, (Game.user_id == Match.user_id) & (Game.match_id == Match.match_id) & (Game.p1 == Match.p1)).add_entity(Game)
 	elif dash_name == 'play_stats':
-		pass
+		table = table.join(Game, (Game.user_id == Match.user_id) & (Game.match_id == Match.match_id) & (Game.p1 == Match.p1)).add_entity(Game)
+		table = table.join(Play, (Play.user_id == Game.user_id) & (Play.match_id == Game.match_id) & (Play.game_num == Game.game_num)).add_entity(Play)
 	elif dash_name == 'opponents':
 		pass
 	elif dash_name == 'card_data':
-		pass
+		table = table.join(Game, (Game.user_id == Match.user_id) & (Game.match_id == Match.match_id) & (Game.p1 == Match.p1)).add_entity(Game)
+		table = table.join(Play, (Play.user_id == Game.user_id) & (Play.match_id == Game.match_id) & (Play.game_num == Game.game_num)).add_entity(Play)
+		table = table.filter(Play.action.in_(['Casts']))
+		table = table.filter(Play.primary_card != 'NA')
 
 	if dash_name == 'match_history':
 		table = table.order_by(desc(Match.match_id)).limit(25)
@@ -890,25 +896,34 @@ def dashboards(dash_name):
 
 		return render_template('dashboards.html', user=current_user, dash_name=dash_name, inputs=inputs, table=[df3])
 	elif dash_name == 'play_stats':
-		pass 
+		df = pd.DataFrame([i[0].as_dict() | i[1].as_dict() | i[2].as_dict() for i in table.all()])
+		#for i in table.all():
+		#	print(i)
+
+		return render_template('dashboards.html', user=current_user, dash_name=dash_name, inputs=inputs, table=[df.head(25)]) 
 	elif dash_name == 'opponents':
 		pass 
 	elif dash_name == 'card_data':
-		pass 
+		#table = table.filter(Game.game_num.in_([1]))
+		df_pre = pd.DataFrame([i[0].as_dict() | i[1].as_dict() | i[2].as_dict() for i in table.filter(Game.game_num.in_([1])).all()])
+		df_pre['Games Won'] = df_pre.apply(lambda x: x['match_id']+str(x['game_num']) if x['game_winner'] == 'P1' else None, axis=1)
+		df_pre['Games Played'] = df_pre.apply(lambda x: x['match_id']+str(x['game_num']), axis=1)
+
+		df_post = pd.DataFrame([i[0].as_dict() | i[1].as_dict() | i[2].as_dict() for i in table.filter(Game.game_num.in_([2,3])).all()])
+		df_post['Games Won'] = df_post.apply(lambda x: x['match_id']+str(x['game_num']) if x['game_winner'] == 'P1' else None, axis=1)
+		df_post['Games Played'] = df_post.apply(lambda x: x['match_id']+str(x['game_num']), axis=1)
+
+		df1 = df_pre.groupby(['primary_card']).agg({'Games Won':'nunique', 'Games Played':'nunique'}).reset_index()
+		df1['Game Win%'] = df1.apply(lambda x: round((x['Games Won']/x['Games Played'])*100,1), axis=1)
+		df1 = df1.sort_values(by='Games Played', ascending=False).reset_index(drop=True)
+
+		df2 = df_post.groupby(['primary_card']).agg({'Games Won':'nunique', 'Games Played':'nunique'}).reset_index()
+		df2['Game Win%'] = df2.apply(lambda x: round((x['Games Won']/x['Games Played'])*100,1), axis=1)
+		df2 = df2.sort_values(by='Games Played', ascending=False).reset_index(drop=True)
+
+		return render_template('dashboards.html', user=current_user, dash_name=dash_name, inputs=inputs, table=[df1.head(25), df2.head(25)]) 
 
 	return render_template('dashboards.html', user=current_user, dash_name=dash_name, inputs=inputs)
-	# if dash_name == 'match_history':
-	# 	return render_template('dashboards.html', user=current_user, dash_name=dash_name) 
-	# elif dash_name == 'match_stats':
-	# 	return render_template('dashboards.html', user=current_user, dash_name=dash_name) 
-	# elif dash_name == 'game_stats':
-	# 	return render_template('dashboards.html', user=current_user, dash_name=dash_name) 
-	# elif dash_name == 'play_stats':
-	# 	return render_template('dashboards.html', user=current_user, dash_name=dash_name) 
-	# elif dash_name == 'opponents':
-	# 	return render_template('dashboards.html', user=current_user, dash_name=dash_name) 
-	# elif dash_name == 'card_data':
-	# 	return render_template('dashboards.html', user=current_user, dash_name=dash_name) 
 
 @views.route('/filter_options')
 def filter_options():
