@@ -70,6 +70,8 @@ class Play(db.Model):
 	attackers = db.Column(db.Integer)
 	active_player = db.Column(db.String(30))
 	non_active_player = db.Column(db.String(30))
+	def as_dict(self):
+		return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class Pick(db.Model):
 	user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
